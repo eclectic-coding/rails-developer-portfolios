@@ -18,9 +18,9 @@ FileUtils.chdir APP_ROOT do
   # Add necessary setup steps to this file.
 
   # Install system dependencies if Homebrew is installed
-  if command_available?("brew")
-    system("brew bundle check --no-lock --no-upgrade") || system!("brew bundle --no-upgrade --no-lock")
-  end
+  # if command_available?("brew")
+  #   system("brew bundle check --no-lock --no-upgrade") || system!("brew bundle --no-upgrade --no-lock")
+  # end
 
   puts "== Installing dependencies =="
   system! "gem install bundler --conservative"
