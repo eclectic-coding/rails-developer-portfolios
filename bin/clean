@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+#set -e
+
+echo "[ bin/ci ] Running tests"
+bin/rspec
+
+echo "[ bin/ci ] Analyzing code for security vulnerabilities with brakeman."
+echo "[ bin/ci ] Output will be in tmp/brakeman.html, which"
+echo "[ bin/ci ] can be opened in your browser."
+bundle exec brakeman -q -o tmp/brakeman.html
+
+echo "[ bin/ci ] Analyzing Ruby gems for"
+echo "[ bin/ci ] security vulnerabilities with bundle audit"
+#bundle exec bundle-audit check --update --ignore CVE-2015-9284
+bundle exec bundle-audit check --update
+
+echo "[ bin/ci ] Linting: Running rubocop"
+bin/rubocop
+
+echo "[ bin/ci ] Done"
