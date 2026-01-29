@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
 eval_gemfile 'config/gems/app.rb'
+eval_gemfile 'config/gems/rspec_gemfile.rb'
 
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
