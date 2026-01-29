@@ -1,0 +1,20 @@
+/**
+* 1 - Set SCSS variables below
+*/
+//$primary: hsl(250,78%,63%);
+//$secondary: hsl(216, 15%, 52%);
+$link-decoration: none;
+$form-label-margin-bottom: 0;
+
+//New theme
+
+/**
+* 2 - Import bare minimum of bootstrap
+*/
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+
+/**
+* 3 - Now you can refine Bootstrap here
+*/
+
