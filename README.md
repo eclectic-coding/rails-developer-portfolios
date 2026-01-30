@@ -85,7 +85,7 @@ Fetches from: https://raw.githubusercontent.com/emmabostian/developer-portfolios
 
 ## ✅ Status
 
-**Currently loaded**: 1,456 developer portfolios
+**Portfolios**: Developer portfolios loaded from upstream feed (count varies over time)
 **Cache duration**: 24 hours
 **Auto-refresh**: Daily at 2 AM
-**All tests**: ✓ Passing
+**Tests**: See CI status or run locally with `bin/rspec`
