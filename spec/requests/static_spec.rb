@@ -1,6 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe "Root", type: :request do
+# Request spec for the developer portfolios root path
+RSpec.describe "Developer portfolios root", type: :request do
   describe "GET /" do
     before do
       allow(DeveloperPortfoliosFetcher).to receive(:fetch).and_return([])
