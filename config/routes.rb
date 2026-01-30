@@ -1,8 +1,8 @@
 Rails.application.routes.draw do
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
-  root to: 'static#home'
-  get "static/home"
+  # Root is the portfolios index
+  root to: 'portfolios#index'
 
   # Developer portfolios API endpoint
   resources :portfolios, only: [:index]

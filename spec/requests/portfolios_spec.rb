@@ -4,8 +4,8 @@ RSpec.describe PortfoliosController, type: :request do
   describe 'GET /portfolios' do
     let(:sample_data) do
       [
-        { 'name' => 'John Doe', 'link' => 'https://johndoe.com' },
-        { 'name' => 'Jane Smith', 'link' => 'https://janesmith.com' }
+        { 'name' => 'John Doe', 'url' => 'https://johndoe.com', 'tagline' => 'Full Stack Developer' },
+        { 'name' => 'Jane Smith', 'url' => 'https://janesmith.com', 'tagline' => 'Frontend Engineer' }
       ]
     end
 

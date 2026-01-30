@@ -1,27 +1,65 @@
 <div class="container mt-5">
-  <h1 class="mb-4">Developer Portfolios</h1>
+  <div class="text-center mb-5">
+    <h1 class="display-4">Developer Portfolios</h1>
+    <p class="lead text-muted">
+      A curated collection of <span class="fw-bold"><%= @portfolios.size %></span> developer portfolios
+    </p>
+  </div>
 
-  <div id="portfolios-data">
-    <% if @portfolios.present? %>
-      <p class="text-muted"><%= @portfolios.size %> portfolios loaded</p>
-      <div class="row">
-        <% @portfolios.each do |portfolio| %>
-          <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card">
-              <div class="card-body">
-                <h5 class="card-title"><%= portfolio['name'] %></h5>
-                <% if portfolio['link'].present? %>
-                  <%= link_to 'View Portfolio', portfolio['link'], class: 'btn btn-primary btn-sm', target: '_blank' %>
+  <% if @portfolios.present? %>
+    <div class="row g-4">
+      <% @portfolios.each do |portfolio| %>
+        <div class="col-sm-6 col-md-4 col-lg-3">
+          <% if portfolio['url'].present? %>
+            <%= link_to portfolio['url'], target: '_blank', rel: 'noopener noreferrer', class: 'text-decoration-none' do %>
+              <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title text-dark"><%= portfolio['name'] %></h5>
+                  <% if portfolio['tagline'].present? %>
+                    <p class="card-text text-muted small mb-0"><%= portfolio['tagline'] %></p>
+                  <% end %>
+                  <div class="mt-auto pt-3">
+                    <span class="badge bg-primary">View Portfolio →</span>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="card h-100 shadow-sm">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title text-muted"><%= portfolio['name'] %></h5>
+                <% if portfolio['tagline'].present? %>
+                  <p class="card-text text-muted small mb-0"><%= portfolio['tagline'] %></p>
                 <% end %>
+                <div class="mt-auto pt-3">
+                  <span class="badge bg-secondary">No Link Available</span>
+                </div>
               </div>
             </div>
-          </div>
-        <% end %>
-      </div>
-    <% else %>
-      <div class="alert alert-info">
-        No portfolios data available yet. The data will be fetched automatically.
-      </div>
-    <% end %>
-  </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="alert alert-info text-center">
+      <h4>No portfolios data available yet</h4>
+      <p>The data will be fetched automatically. You can also run: <code>rails portfolios:fetch</code></p>
+    </div>
+  <% end %>
 </div>
+
+<style>
+  .hover-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hover-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+</style>

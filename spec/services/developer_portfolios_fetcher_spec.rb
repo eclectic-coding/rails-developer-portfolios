@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe DeveloperPortfoliosFetcher do
   let(:api_url) { 'https://raw.githubusercontent.com/emmabostian/developer-portfolios/master/feed.json' }
-  let(:sample_response) { [{ 'name' => 'Test Portfolio', 'link' => 'https://example.com' }].to_json }
+  let(:sample_response) { [{ 'name' => 'Test Portfolio', 'url' => 'https://example.com', 'tagline' => 'Developer' }].to_json }
 
   # Use memory store for testing caching behavior
   around do |example|

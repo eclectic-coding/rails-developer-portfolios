@@ -28,9 +28,9 @@ rails portfolios:clear_cache
 
 ### Access the API
 
+- **Root/Home**: `GET /` (displays all portfolios)
 - **JSON API**: `GET /portfolios.json`
-- **HTML View**: `GET /portfolios`
-- **Home Page**: `GET /` (includes usage examples)
+- **HTML View**: `GET /portfolios` (same as root)
 
 ### Use in JavaScript
 

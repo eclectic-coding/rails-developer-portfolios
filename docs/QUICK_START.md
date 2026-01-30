@@ -12,8 +12,10 @@ rails portfolios:fetch
 ```
 
 **2. View in browser:**
-- HTML: http://localhost:3000/portfolios
+- Home/All Portfolios: http://localhost:3000/
 - JSON: http://localhost:3000/portfolios.json
+
+**Note:** The entire card is clickable and opens portfolios in a new window!
 
 **3. Use in JavaScript:**
 ```javascript
@@ -21,7 +23,7 @@ fetch('/portfolios.json')
   .then(response => response.json())
   .then(portfolios => {
     console.log(`Loaded ${portfolios.length} portfolios`);
-    // portfolios is an array of objects with 'name' and 'link' properties
+    // portfolios is an array of objects with 'name', 'url', and optional 'tagline' properties
   });
 ```
 
@@ -82,7 +84,7 @@ async function loadPortfolios() {
     const portfolios = await response.json();
 
     portfolios.forEach(portfolio => {
-      console.log(`${portfolio.name}: ${portfolio.link}`);
+      console.log(`${portfolio.name}: ${portfolio.url}`);
     });
 
     return portfolios;
@@ -114,7 +116,8 @@ Each portfolio object contains:
 ```json
 {
   "name": "Developer Name",
-  "link": "https://portfolio-url.com"
+  "url": "https://portfolio-url.com",
+  "tagline": "Full Stack Developer"
 }
 ```
 

@@ -12,19 +12,19 @@ Here are practical examples for using the Developer Portfolios API in your appli
 
   <div id="portfolios-list" class="row">
     <% @portfolios.each do |portfolio| %>
-      <div class="col-md-4 mb-3">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title"><%= portfolio['name'] %></h5>
-            <% if portfolio['link'].present? %>
-              <%= link_to 'View Portfolio', portfolio['link'],
-                  class: 'btn btn-primary',
-                  target: '_blank',
-                  rel: 'noopener noreferrer' %>
-            <% end %>
+          <div class="col-md-4 mb-3">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><%= portfolio['name'] %></h5>
+                <% if portfolio['url'].present? %>
+                  <%= link_to 'View Portfolio', portfolio['url'],
+                      class: 'btn btn-primary',
+                      target: '_blank',
+                      rel: 'noopener noreferrer' %>
+                <% end %>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
     <% end %>
   </div>
 </div>
@@ -100,8 +100,8 @@ export default class extends Controller {
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">${this.escape(p.name)}</h5>
-            ${p.link ? `
-              <a href="${this.escape(p.link)}"
+            ${p.url ? `
+              <a href="${this.escape(p.url)}"
                  class="btn btn-primary btn-sm"
                  target="_blank"
                  rel="noopener">
@@ -167,13 +167,13 @@ export default class extends Controller {
 
     this.contentTarget.innerHTML = `
       <h4>${this.escape(random.name)}</h4>
-      ${random.link ? `
-        <a href="${this.escape(random.link)}"
+      ${random.url ? `
+        <a href="${this.escape(random.url)}"
            class="btn btn-primary"
            target="_blank">
           Visit Portfolio
         </a>
-      ` : '<p class="text-muted">No link available</p>'}
+      ` : '<p class="text-muted">No url available</p>'}
     `
   }
 
@@ -243,8 +243,8 @@ export default class extends Controller {
         <div class="card">
           <div class="card-body">
             <h5 class="card-title">${this.escape(p.name)}</h5>
-            ${p.link ? `
-              <a href="${this.escape(p.link)}" target="_blank">
+            ${p.url ? `
+              <a href="${this.escape(p.url)}" target="_blank">
                 View Portfolio
               </a>
             ` : ''}
