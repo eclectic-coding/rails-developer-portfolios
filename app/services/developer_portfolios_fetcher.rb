@@ -41,7 +41,7 @@ class DeveloperPortfoliosFetcher
     end
   rescue StandardError => e
     Rails.logger.error "Error fetching developer portfolios: #{e.message}"
-    # Try to return stale cache if available
+    # Try to return cached data if available
     Rails.cache.read(CACHE_KEY) || []
   end
 
