@@ -91,7 +91,7 @@ rails runner "FetchDeveloperPortfoliosJob.perform_now"
 ## 📊 Current Status
 
 ✅ Successfully tested with live data
-✅ Fetched and cached **1,456 portfolios**
+✅ Fetched and cached portfolios from the upstream feed (production-sized dataset verified)
 ✅ Cache working correctly
 ✅ Job tested and working
 ✅ Routes configured
