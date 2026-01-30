@@ -1,0 +1,27 @@
+<div class="container mt-5">
+  <h1 class="mb-4">Developer Portfolios</h1>
+
+  <div id="portfolios-data">
+    <% if @portfolios.present? %>
+      <p class="text-muted"><%= @portfolios.size %> portfolios loaded</p>
+      <div class="row">
+        <% @portfolios.each do |portfolio| %>
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title"><%= portfolio['name'] %></h5>
+                <% if portfolio['link'].present? %>
+                  <%= link_to 'View Portfolio', portfolio['link'], class: 'btn btn-primary btn-sm', target: '_blank' %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="alert alert-info">
+        No portfolios data available yet. The data will be fetched automatically.
+      </div>
+    <% end %>
+  </div>
+</div>

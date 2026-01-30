@@ -1,2 +1,48 @@
-<h1>Static#home</h1>
-<p>Find me in app/views/static/home.html.erb</p>
+<div class="container mt-5">
+  <h1>Developer Portfolios</h1>
+  <p class="lead">Welcome to the Developer Portfolios application.</p>
+
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">View Portfolios</h5>
+          <p class="card-text">Browse the curated list of developer portfolios.</p>
+          <%= link_to "View Portfolios", portfolios_path, class: "btn btn-primary" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">API Access</h5>
+          <p class="card-text">Access portfolio data as JSON for your frontend applications.</p>
+          <%= link_to "View JSON", portfolios_path(format: :json), class: "btn btn-outline-primary", target: "_blank" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5">
+    <h3>Frontend Integration Example</h3>
+    <div class="card">
+      <div class="card-body">
+        <p>You can fetch the portfolio data from JavaScript:</p>
+        <pre><code>fetch('/portfolios.json')
+  .then(response => response.json())
+  .then(data => {
+    console.log('Portfolios:', data);
+    // Use the data in your app
+  });</code></pre>
+
+        <p class="mt-3">Or use the included Stimulus controller:</p>
+        <pre><code>&lt;div data-controller="portfolios"&gt;
+  &lt;div data-portfolios-target="loading" class="d-none"&gt;Loading...&lt;/div&gt;
+  &lt;div data-portfolios-target="error" class="alert alert-danger d-none"&gt;&lt;/div&gt;
+  &lt;div class="row" data-portfolios-target="container"&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
