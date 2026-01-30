@@ -1,0 +1,21 @@
+<% if portfolio['url'].present? %>
+  <%= link_to portfolio['url'], target: '_blank', rel: 'noopener noreferrer', class: 'text-decoration-none' do %>
+    <div class="card h-100 shadow-sm hover-card">
+      <div class="card-body">
+        <h5 class="card-title text-dark"><%= portfolio['name'] %></h5>
+        <% if portfolio['tagline'].present? %>
+          <p class="card-text text-muted small mb-0"><%= portfolio['tagline'] %></p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% else %>
+  <div class="card h-100 shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title text-muted"><%= portfolio['name'] %></h5>
+      <% if portfolio['tagline'].present? %>
+        <p class="card-text text-muted small mb-0"><%= portfolio['tagline'] %></p>
+      <% end %>
+    </div>
+  </div>
+<% end %>
