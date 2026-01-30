@@ -1,28 +1,15 @@
 require 'rails_helper'
 
-RSpec.describe "Statics", type: :request do
-  describe "GET /static/home" do
-    it "returns http success" do
-      get static_home_path
-      expect(response).to have_http_status(:success)
-    end
-
-    it "displays the home page content" do
-      get static_home_path
-      expect(response.body).to include("Static#home")
-    end
-  end
-
+# Request spec for the developer portfolios root path
+RSpec.describe "Developer portfolios root", type: :request do
   describe "GET /" do
+    before do
+      allow(DeveloperPortfoliosFetcher).to receive(:fetch).and_return([])
+    end
+
     it "returns http success" do
       get root_path
       expect(response).to have_http_status(:success)
-    end
-
-
-    it "displays the home page content" do
-      get root_path
-      expect(response.body).to include("Static#home")
     end
   end
 end
