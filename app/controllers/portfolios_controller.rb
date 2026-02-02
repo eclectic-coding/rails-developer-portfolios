@@ -1,10 +1,9 @@
 class PortfoliosController < ApplicationController
   def index
-    @portfolios = DeveloperPortfoliosFetcher.fetch
+    @portfolios = Portfolio.active
 
     respond_to do |format|
-      format.html # if you want to render a view
-      format.json { render json: @portfolios }
+      format.html
     end
   end
 end

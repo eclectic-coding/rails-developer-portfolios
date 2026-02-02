@@ -1,14 +1,16 @@
 # Developer Portfolios API Integration
 
-This application fetches and caches developer portfolio data from the GitHub repository.
+This application fetches developer portfolio data from the GitHub repository and persists it in the local `portfolios` database table.
 
 ## Overview
 
 The system includes:
-- **Service**: `DeveloperPortfoliosFetcher` - Fetches and caches data from the API
-- **Job**: `FetchDeveloperPortfoliosJob` - Background job to refresh the cache
-- **Controller**: `PortfoliosController` - Serves the data to the frontend
-- **Cache**: 24-hour cache duration using Rails cache
+- **Service**: `DeveloperPortfoliosFetcher` - Fetches data from the remote feed and syncs it into the DB
+- **Job**: `FetchDeveloperPortfoliosJob` - Background job to refresh the local data
+- **Model**: `Portfolio` - ActiveRecord model backed by the `portfolios` table
+- **Controller**: `PortfoliosController` - Serves data from the DB to the frontend
+
+The data is refreshed on a schedule (see `config/recurring.yml`) and can also be triggered manually.
 
 ## API Endpoint
 
@@ -18,18 +20,39 @@ The system includes:
 - **Formats**: JSON, HTML
 
 #### JSON Response
-```
+
+```http
 GET /portfolios.json
 ```
 
-Returns an array of portfolio objects.
+Returns an array of portfolio objects coming from the `portfolios` table. Example shape:
+
+```json
+[
+  {
+    "name": "Developer Name",
+    "path": "https://portfolio-url.com",
+    "tagline": "Optional tagline or expertise",
+    "active": true
+  },
+  {
+    "name": "Another Developer",
+    "path": "https://another-portfolio.com",
+    "tagline": null,
+    "active": true
+  }
+]
+```
+
+> Note: The source feed uses a `url` field; this is stored in the `path` column on the `portfolios` table and exposed as `path` in the JSON response.
 
 #### HTML View
-```
+
+```http
 GET /portfolios
 ```
 
-Returns a rendered HTML page with all portfolios.
+Returns a rendered HTML page with all active portfolios.
 
 ## Usage Examples
 
@@ -39,10 +62,10 @@ Returns a rendered HTML page with all portfolios.
 fetch('/portfolios.json')
   .then(response => response.json())
   .then(data => {
-    console.log('Portfolios:', data);
+    console.log('Portfolios:', data)
     // Use the data in your frontend
   })
-  .catch(error => console.error('Error:', error));
+  .catch(error => console.error('Error:', error))
 ```
 
 ### From Stimulus Controller
@@ -73,16 +96,13 @@ export default class extends Controller {
 
 ## Manual Operations
 
-### Fetch Data Manually (Rails Console)
+### Sync Data Manually (Rails Console)
 ```ruby
-# Fetch and cache data
-DeveloperPortfoliosFetcher.fetch_and_cache
+# Fetch from remote feed and sync into the DB
+DeveloperPortfoliosFetcher.fetch_and_sync
 
-# Get cached data
-data = DeveloperPortfoliosFetcher.fetch
-
-# Clear cache
-DeveloperPortfoliosFetcher.clear_cache
+# Inspect portfolios from the DB
+Portfolio.active
 ```
 
 ### Run Job Manually
@@ -96,25 +116,19 @@ FetchDeveloperPortfoliosJob.perform_later
 
 ## Automatic Refresh
 
-The data is automatically refreshed daily at 2 AM via a recurring job configured in `config/recurring.yml`.
-
-## Cache Details
-
-- **Cache Key**: `developer_portfolios_data`
-- **Duration**: 1 day (24 hours)
-- **Backend**: Solid Cache (configured in the application)
-- **Fallback**: Returns empty array if fetch fails and no cache exists
+The data is automatically refreshed on a schedule via a recurring job configured in `config/recurring.yml`.
 
 ## Source Data
 
 The data is fetched from:
+
 ```
 https://raw.githubusercontent.com/emmabostian/developer-portfolios/master/feed.json
 ```
 
 ## Error Handling
 
-The service includes error handling:
-- Returns cached data even if expired when fresh fetch fails
-- Logs all errors to Rails logger
-- Returns empty array as last resort fallback
+The service includes basic error handling:
+- Logs HTTP and parsing errors to the Rails logger
+- Returns `false` from `fetch_and_sync` if the remote fetch fails
+- Leaves existing DB data untouched if a sync attempt fails

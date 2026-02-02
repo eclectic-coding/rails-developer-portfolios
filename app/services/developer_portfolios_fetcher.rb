@@ -2,28 +2,13 @@ require 'net/http'
 require 'json'
 
 class DeveloperPortfoliosFetcher
-  CACHE_KEY = 'developer_portfolios_data'
-  CACHE_EXPIRY = 1.day
   FEED_URL = 'https://raw.githubusercontent.com/emmabostian/developer-portfolios/master/feed.json'
 
-  def self.fetch
-    new.fetch
+  def self.fetch_and_sync
+    new.fetch_and_sync
   end
 
-  def self.fetch_and_cache
-    new.fetch_and_cache
-  end
-
-  def fetch
-    # Try to get cached data first
-    cached_data = Rails.cache.read(CACHE_KEY)
-    return cached_data if cached_data.present?
-
-    # If no cache, fetch fresh data
-    fetch_and_cache
-  end
-
-  def fetch_and_cache
+  def fetch_and_sync
     Rails.logger.info "Fetching developer portfolios from #{FEED_URL}"
 
     uri = URI(FEED_URL)
@@ -31,21 +16,72 @@ class DeveloperPortfoliosFetcher
 
     if response.is_a?(Net::HTTPSuccess)
       data = JSON.parse(response.body)
-      Rails.cache.write(CACHE_KEY, data, expires_in: CACHE_EXPIRY)
-      Rails.logger.info "Successfully cached #{data.size} developer portfolios"
-      data
+      sync_portfolios(data)
+      Rails.logger.info "Successfully synced #{data.size} developer portfolios"
+      true
     else
       Rails.logger.error "Failed to fetch developer portfolios: #{response.code} #{response.message}"
-      # Return empty array if fetch fails and no cached data exists
-      []
+      false
     end
   rescue StandardError => e
     Rails.logger.error "Error fetching developer portfolios: #{e.message}"
-    # Try to return cached data if available
-    Rails.cache.read(CACHE_KEY) || []
+    false
   end
 
-  def self.clear_cache
-    Rails.cache.delete(CACHE_KEY)
+  private
+
+  # The source JSON has the shape:
+  # [
+  #   { "name": "Developer Name", "url": "https://portfolio-url.com", "tagline": "Optional tagline" },
+  #   { "name": "Another Developer", "url": "https://another-portfolio.com" }
+  # ]
+  # We persist `url` into the `path` column.
+  def sync_portfolios(data)
+    current_paths = data.map { |p| p['url'] }.compact
+
+    # Mark any portfolios that are no longer present in the feed as inactive
+    Portfolio.where.not(path: current_paths).update_all(active: false)
+
+    data.each do |portfolio_data|
+      url = portfolio_data['url']
+      name = portfolio_data['name']
+      tagline = portfolio_data['tagline']
+
+      next if url.blank? || name.blank?
+
+      portfolio = Portfolio.find_by(path: url)
+
+      if portfolio
+        # Same URL: update name/tagline/active
+        portfolio.update!(
+          name: name,
+          tagline: tagline,
+          active: true
+        )
+        Rails.logger.debug "Updated portfolio: #{portfolio.name}"
+      else
+        # Possible path change: try to find an inactive record with same name
+        old_portfolio = Portfolio.where(active: false, name: name)
+                                 .order(updated_at: :desc)
+                                 .first
+
+        if old_portfolio
+          old_portfolio.update!(
+            path: url,
+            tagline: tagline,
+            active: true
+          )
+          Rails.logger.info "Updated URL for portfolio: #{old_portfolio.name}"
+        else
+          Portfolio.create!(
+            name: name,
+            path: url,
+            tagline: tagline,
+            active: true
+          )
+          Rails.logger.info "Created new portfolio: #{name}"
+        end
+      end
+    end
   end
 end
