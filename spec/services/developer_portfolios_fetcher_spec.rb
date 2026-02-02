@@ -108,5 +108,28 @@ RSpec.describe DeveloperPortfoliosFetcher do
       expect(new_portfolio.active).to be true
       expect(existing.reload.active).to be true
     end
+
+    it 'returns false and logs an error when the response is not successful' do
+      stub_request(:get, api_url)
+        .to_return(status: 500, body: 'Internal Server Error', headers: {})
+
+      expect(Rails.logger).to receive(:error).with(/Failed to fetch developer portfolios: 500/)
+
+      expect {
+        result = described_class.fetch_and_sync
+        expect(result).to be false
+      }.not_to change(Portfolio, :count)
+    end
+
+    it 'returns false and logs an error when an exception is raised' do
+      allow(Net::HTTP).to receive(:get_response).and_raise(StandardError.new('boom'))
+
+      expect(Rails.logger).to receive(:error).with(/Error fetching developer portfolios: boom/)
+
+      expect {
+        result = described_class.fetch_and_sync
+        expect(result).to be false
+      }.not_to change(Portfolio, :count)
+    end
   end
 end

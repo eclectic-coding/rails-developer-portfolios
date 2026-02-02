@@ -493,7 +493,7 @@ DEPENDENCIES
   rails-erd
   rspec-rails (~> 8.0.0)
   rubocop-rails-omakase
-  simplecov (~> 0.22.0)
+  simplecov
   solid_cable
   solid_cache
   solid_queue
