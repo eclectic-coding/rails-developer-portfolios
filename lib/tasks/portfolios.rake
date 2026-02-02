@@ -1,38 +1,52 @@
 namespace :portfolios do
-  desc "Fetch and cache developer portfolios data"
+  desc "Fetch developer portfolios data and sync to the database"
   task fetch: :environment do
-    puts "Fetching developer portfolios..."
-    result = DeveloperPortfoliosFetcher.fetch_and_cache
-    puts "✓ Successfully fetched and cached #{result.size} portfolios"
+    puts "Fetching developer portfolios and syncing to DB..."
 
-    if result.any?
-      puts "\nFirst portfolio:"
-      puts "  Name: #{result.first['name']}"
-      puts "  Link: #{result.first['link']}"
+    if DeveloperPortfoliosFetcher.fetch_and_sync
+      count = Portfolio.count
+      active_count = Portfolio.where(active: true).count
+
+      puts "✓ Successfully synced portfolios"
+      puts "  Total records:  #{count}"
+      puts "  Active records: #{active_count}"
+
+      if active_count.positive?
+        sample = Portfolio.active.order(:name).first
+        puts "\nSample portfolio:"
+        puts "  Name:   #{sample.name}"
+        puts "  URL:    #{sample.path}"
+        puts "  Tagline: #{sample.tagline.presence || '(none)'}"
+      end
+    else
+      puts "✗ Sync failed. Check logs for details."
     end
   rescue StandardError => e
     puts "✗ Error: #{e.message}"
     puts e.backtrace.first(5)
   end
 
-  desc "Clear portfolios cache"
-  task clear_cache: :environment do
-    puts "Clearing portfolios cache..."
-    DeveloperPortfoliosFetcher.clear_cache
-    puts "✓ Cache cleared"
-  end
-
-  desc "Show cached portfolios data"
+  desc "Show portfolio stats from the database"
   task show: :environment do
-    data = DeveloperPortfoliosFetcher.fetch
-    if data.any?
-      puts "Cached portfolios: #{data.size}"
-      puts "\nSample portfolios:"
-      data.first(5).each_with_index do |portfolio, index|
-        puts "#{index + 1}. #{portfolio['name']} - #{portfolio['link']}"
+    count = Portfolio.count
+    active_count = Portfolio.where(active: true).count
+
+    puts "Portfolios in DB:"
+    puts "  Total records:  #{count}"
+    puts "  Active records: #{active_count}"
+
+    if active_count.positive?
+      puts "\nFirst 5 active portfolios:"
+      Portfolio.active.order(:name).limit(5).each_with_index do |portfolio, index|
+        puts "#{index + 1}. #{portfolio.name} - #{portfolio.path}"
       end
     else
-      puts "No cached data available"
+      puts "No active portfolios found. Try running: rails portfolios:fetch"
     end
+  end
+
+  desc "(Deprecated) Clear portfolios cache - no-op now that we use the database"
+  task clear_cache: :environment do
+    puts "Cache is no longer used. Portfolios are stored in the database."
   end
 end

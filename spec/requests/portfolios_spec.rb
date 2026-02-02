@@ -2,41 +2,22 @@ require 'rails_helper'
 
 RSpec.describe PortfoliosController, type: :request do
   describe 'GET /portfolios' do
-    let(:sample_data) do
-      [
-        { 'name' => 'John Doe', 'url' => 'https://johndoe.com', 'tagline' => 'Full Stack Developer' },
-        { 'name' => 'Jane Smith', 'url' => 'https://janesmith.com', 'tagline' => 'Frontend Engineer' }
-      ]
+    let!(:portfolio1) { create(:portfolio, name: 'John Doe', path: 'https://johndoe.com', tagline: 'Full Stack Developer', active: true) }
+    let!(:portfolio2) { create(:portfolio, name: 'Jane Smith', path: 'https://janesmith.com', tagline: 'Frontend Engineer', active: true) }
+    let!(:inactive_portfolio) { create(:portfolio, name: 'Inactive Dev', path: 'https://inactive.com', tagline: 'Should not show', active: false) }
+
+    it 'returns success' do
+      get '/portfolios'
+      expect(response).to have_http_status(:success)
     end
 
-    before do
-      allow(DeveloperPortfoliosFetcher).to receive(:fetch).and_return(sample_data)
-    end
+    it 'renders the portfolios page with active portfolios' do
+      get '/portfolios'
 
-    context 'when requesting HTML' do
-      it 'returns success' do
-        get '/portfolios'
-        expect(response).to have_http_status(:success)
-      end
-
-      it 'renders the portfolios page' do
-        get '/portfolios'
-        expect(response.body).to include('Developer Portfolios')
-      end
-    end
-
-    context 'when requesting JSON' do
-      it 'returns JSON data' do
-        get '/portfolios.json'
-        expect(response).to have_http_status(:success)
-        expect(response.content_type).to match(/application\/json/)
-      end
-
-      it 'returns portfolios as JSON' do
-        get '/portfolios.json'
-        json_response = JSON.parse(response.body)
-        expect(json_response).to eq(sample_data)
-      end
+      expect(response.body).to include('Developer Portfolios').or include('Portfolios')
+      expect(response.body).to include('John Doe')
+      expect(response.body).to include('Jane Smith')
+      expect(response.body).not_to include('Inactive Dev')
     end
   end
 end

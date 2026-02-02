@@ -12,4 +12,8 @@
 #
 
 class Portfolio < ApplicationRecord
+  validates :name, presence: true
+  validates :path, presence: true, uniqueness: true
+
+  scope :active, -> { where(active: true).order(:name) }
 end

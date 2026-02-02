@@ -1,57 +1,112 @@
 require 'rails_helper'
 
 RSpec.describe DeveloperPortfoliosFetcher do
-  let(:api_url) { 'https://raw.githubusercontent.com/emmabostian/developer-portfolios/master/feed.json' }
-  let(:sample_response) { [{ 'name' => 'Test Portfolio', 'url' => 'https://example.com', 'tagline' => 'Developer' }].to_json }
+  describe '.fetch_and_sync' do
+    let(:api_url) { DeveloperPortfoliosFetcher::FEED_URL }
 
-  # Use memory store for testing caching behavior
-  around do |example|
-    original_cache_store = Rails.cache
-    Rails.cache = ActiveSupport::Cache::MemoryStore.new
-    example.run
-    Rails.cache = original_cache_store
-  end
-
-  after do
-    Rails.cache.delete(DeveloperPortfoliosFetcher::CACHE_KEY)
-  end
-
-  describe '.fetch' do
-    context 'when data is not cached' do
-      before do
-        Rails.cache.delete(DeveloperPortfoliosFetcher::CACHE_KEY)
-        stub_request(:get, api_url)
-          .to_return(status: 200, body: sample_response, headers: { 'Content-Type' => 'application/json' })
-      end
-
-      it 'fetches data from the API' do
-        result = described_class.fetch
-        expect(result).to be_an(Array)
-        expect(result.first['name']).to eq('Test Portfolio')
-      end
-    end
-  end
-
-  describe '.fetch_and_cache' do
-    before do
+    def stub_feed(body)
       stub_request(:get, api_url)
-        .to_return(status: 200, body: sample_response, headers: { 'Content-Type' => 'application/json' })
+        .to_return(status: 200, body: body.to_json, headers: { 'Content-Type' => 'application/json' })
     end
 
-    it 'fetches and caches data' do
-      result = described_class.fetch_and_cache
-      expect(result).to be_an(Array)
+    it 'creates new portfolios from the feed' do
+      feed = [
+        { 'name' => 'John Doe', 'url' => 'https://johndoe.com', 'tagline' => 'Full Stack Developer' }
+      ]
+      stub_feed(feed)
 
-      cached = Rails.cache.read(DeveloperPortfoliosFetcher::CACHE_KEY)
-      expect(cached).to eq(result)
+      expect {
+        described_class.fetch_and_sync
+      }.to change(Portfolio, :count).by(1)
+
+      portfolio = Portfolio.last
+      expect(portfolio.name).to eq('John Doe')
+      expect(portfolio.path).to eq('https://johndoe.com')
+      expect(portfolio.tagline).to eq('Full Stack Developer')
+      expect(portfolio.active).to be true
     end
-  end
 
-  describe '.clear_cache' do
-    it 'removes cached data' do
-      Rails.cache.write(DeveloperPortfoliosFetcher::CACHE_KEY, ['test'])
-      described_class.clear_cache
-      expect(Rails.cache.read(DeveloperPortfoliosFetcher::CACHE_KEY)).to be_nil
+    it 'marks portfolios as inactive when removed from the feed' do
+      # Existing portfolio in DB
+      existing = create(:portfolio, name: 'To Be Removed', path: 'https://removed.com', active: true)
+
+      # New feed without that portfolio
+      feed = [
+        { 'name' => 'Still Here', 'url' => 'https://still-here.com', 'tagline' => 'Present' }
+      ]
+      stub_feed(feed)
+
+      described_class.fetch_and_sync
+
+      expect(existing.reload.active).to be false
+      expect(Portfolio.find_by(path: 'https://still-here.com')).to be_present
+    end
+
+    it 'updates name and tagline when URL stays the same' do
+      portfolio = create(:portfolio,
+                         name: 'Old Name',
+                         path: 'https://same-url.com',
+                         tagline: 'Old Tagline',
+                         active: false)
+
+      feed = [
+        { 'name' => 'New Name', 'url' => 'https://same-url.com', 'tagline' => 'New Tagline' }
+      ]
+      stub_feed(feed)
+
+      described_class.fetch_and_sync
+
+      portfolio.reload
+      expect(portfolio.name).to eq('New Name')
+      expect(portfolio.tagline).to eq('New Tagline')
+      expect(portfolio.active).to be true
+    end
+
+    it 'reuses an inactive portfolio when URL changes but name matches' do
+      portfolio = create(:portfolio,
+                         name: 'Same Person',
+                         path: 'https://old-url.com',
+                         tagline: 'Old',
+                         active: false)
+
+      feed = [
+        { 'name' => 'Same Person', 'url' => 'https://new-url.com', 'tagline' => 'Updated' }
+      ]
+      stub_feed(feed)
+
+      expect {
+        described_class.fetch_and_sync
+      }.not_to change(Portfolio, :count)
+
+      portfolio.reload
+      expect(portfolio.path).to eq('https://new-url.com')
+      expect(portfolio.tagline).to eq('Updated')
+      expect(portfolio.active).to be true
+    end
+
+    it 'creates a new portfolio when URL and name are both new' do
+      existing = create(:portfolio,
+                        name: 'Existing',
+                        path: 'https://existing.com',
+                        tagline: 'Existing Tagline',
+                        active: true)
+
+      feed = [
+        { 'name' => 'Existing', 'url' => 'https://existing.com', 'tagline' => 'Existing Tagline' },
+        { 'name' => 'New Person', 'url' => 'https://new-person.com', 'tagline' => 'New Tagline' }
+      ]
+      stub_feed(feed)
+
+      expect {
+        described_class.fetch_and_sync
+      }.to change(Portfolio, :count).by(1)
+
+      new_portfolio = Portfolio.find_by(path: 'https://new-person.com')
+      expect(new_portfolio).to be_present
+      expect(new_portfolio.name).to eq('New Person')
+      expect(new_portfolio.tagline).to eq('New Tagline')
+      expect(new_portfolio.active).to be true
+      expect(existing.reload.active).to be true
     end
   end
 end
