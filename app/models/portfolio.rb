@@ -16,4 +16,16 @@ class Portfolio < ApplicationRecord
   validates :path, presence: true, uniqueness: true
 
   scope :active, -> { where(active: true).order(:name) }
+
+  # Returns active portfolios optionally filtered by starting letter
+  scope :starting_with, ->(letter) {
+    letter.present? ? where("name ILIKE ?", "#{letter}%") : all
+  }
+
+  # Returns sorted, unique starting letters for active portfolios
+  def self.starting_letters
+    where(active: true)
+      .pluck(Arel.sql("DISTINCT UPPER(SUBSTRING(name, 1, 1))"))
+      .sort
+  end
 end

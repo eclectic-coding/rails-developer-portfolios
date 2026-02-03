@@ -152,3 +152,31 @@ address {
   font-size: 1rem;
   line-height: 1.4;
 }
+
+// Letter filter buttons styled like cards
+.letter-filter-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem; // ensure single-letter buttons like "I" are not too narrow
+  margin: 0.25rem 0.25rem; // horizontal and vertical gap between wrapped rows
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  color: inherit;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+
+  &.active {
+    border-color: $primary;
+    background-color: $primary;
+    color: #ffffff;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+  }
+}

@@ -1,0 +1,12 @@
+<div class="mb-4 text-center">
+  <!-- All button -->
+  <%= link_to "All",
+              portfolios_path,
+              class: "btn btn-sm mx-1 letter-filter-button #{@letter.nil? ? 'active' : ''}" %>
+
+  <% @letters.each do |letter| %>
+    <%= link_to letter,
+                portfolios_path(letter: letter),
+                class: "btn btn-sm mx-1 letter-filter-button #{@letter == letter ? 'active' : ''}" %>
+  <% end %>
+</div>
