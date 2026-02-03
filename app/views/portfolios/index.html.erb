@@ -6,7 +6,9 @@
     </p>
   </div>
 
-  <%= render "letter_filters" %>
+  <%= render "portfolios/letter_filters" %>
 
-  <%= render 'portfolio_cards', portfolios: @portfolios %>
+  <turbo-frame id="portfolios_cards">
+    <%= render 'portfolios/portfolio_cards', portfolios: @portfolios %>
+  </turbo-frame>
 </div>
