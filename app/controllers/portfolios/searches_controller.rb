@@ -23,7 +23,9 @@ module Portfolios
         .search(@query)
 
       # Unique starting letters for all active portfolios (not filtered by search)
-      @letters = Portfolio.starting_letters
+      @letters = Rails.cache.fetch('portfolio_starting_letters') do
+        Portfolio.starting_letters
+      end
 
       respond_to do |format|
         format.html { render template: 'portfolios/index' }
