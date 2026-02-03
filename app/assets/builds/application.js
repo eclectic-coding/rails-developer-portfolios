@@ -8612,8 +8612,32 @@
     }
   };
 
+  // controllers/portfolio_search_controller.js
+  var portfolio_search_controller_default = class extends Controller {
+    static values = {
+      delay: { type: Number, default: 250 }
+    };
+    connect() {
+      console.log("PortfolioSearchController connected");
+      this.submit = this.submit.bind(this);
+      this._timer = null;
+    }
+    submit() {
+      if (this._timer) clearTimeout(this._timer);
+      this._timer = setTimeout(() => {
+        const form = this.element;
+        if (form && typeof form.requestSubmit === "function") {
+          form.requestSubmit();
+        } else if (form) {
+          form.submit();
+        }
+      }, this.delayValue);
+    }
+  };
+
   // controllers/index.js
   application.register("hello", hello_controller_default);
+  application.register("portfolio-search", portfolio_search_controller_default);
 
   // ../../node_modules/@popperjs/core/lib/index.js
   var lib_exports = {};

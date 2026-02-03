@@ -22,6 +22,13 @@ class Portfolio < ApplicationRecord
     letter.present? ? where("name ILIKE ?", "#{letter}%") : all
   }
 
+  # Simple text search on name and tagline
+  scope :search, ->(query) {
+    return all if query.blank?
+
+    where("name ILIKE :q OR tagline ILIKE :q", q: "%#{query}%")
+  }
+
   # Returns sorted, unique starting letters for active portfolios
   def self.starting_letters
     where(active: true)
