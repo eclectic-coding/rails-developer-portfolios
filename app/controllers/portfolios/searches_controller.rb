@@ -23,4 +23,3 @@ module Portfolios
     end
   end
 end
-
