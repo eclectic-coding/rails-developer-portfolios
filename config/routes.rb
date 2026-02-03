@@ -1,11 +1,17 @@
 Rails.application.routes.draw do
   mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
-  # Root is the portfolios index
-  root to: 'portfolios#index'
+  namespace :portfolios do
+    resources :searches, only: [:index]
+  end
 
-  # Developer portfolios API endpoint
+  # Root is the portfolios index (delegated to the search controller)
+  root to: 'portfolios/searches#index'
+
+  # Developer portfolios API endpoint - keep /portfolios for now, but have it handled by the namespaced searches controller
   resources :portfolios, only: [:index]
+  get '/portfolios', to: 'portfolios/searches#index'
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
