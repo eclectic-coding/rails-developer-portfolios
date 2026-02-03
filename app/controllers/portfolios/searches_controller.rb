@@ -1,7 +1,15 @@
 module Portfolios
   class SearchesController < ApplicationController
     def index
-      @letter = params[:letter].presence
+      raw_letter = params[:letter].to_s
+      sanitized_letter = raw_letter.strip
+
+      @letter =
+        if sanitized_letter.present? && sanitized_letter.match?(/\A[a-zA-Z0-9]\z/)
+          sanitized_letter
+        else
+          nil
+        end
       @query  = params[:q].to_s.presence
 
       base_scope = Portfolio.active
