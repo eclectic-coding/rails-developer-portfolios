@@ -23,4 +23,3 @@ RSpec.describe GeneratePortfolioScreenshotJob, type: :job do
     described_class.perform_now(inactive.id)
   end
 end
-

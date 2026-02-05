@@ -21,4 +21,3 @@ RSpec.describe 'Portfolios caching', type: :request do
     end
   end
 end
-

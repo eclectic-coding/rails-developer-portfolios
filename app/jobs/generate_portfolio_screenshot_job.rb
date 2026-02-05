@@ -8,4 +8,3 @@ class GeneratePortfolioScreenshotJob < ApplicationJob
     PortfolioScreenshotGenerator.generate_for(portfolio)
   end
 end
-
