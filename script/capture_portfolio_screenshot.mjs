@@ -11,7 +11,13 @@ async function main() {
     process.exit(1);
   }
 
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({
+    headless: true,
+    args: [
+      '--disable-dev-shm-usage',
+      '--single-process',
+    ],
+  });
   const page = await browser.newPage();
 
   try {
