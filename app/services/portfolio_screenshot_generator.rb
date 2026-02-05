@@ -10,6 +10,7 @@ class PortfolioScreenshotGenerator
   end
 
   def generate
+    return unless @portfolio.active?
     return unless @portfolio.path.present?
 
     FileUtils.mkdir_p(OUTPUT_DIR)

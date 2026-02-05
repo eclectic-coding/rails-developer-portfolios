@@ -42,6 +42,28 @@ RSpec.describe DeveloperPortfoliosFetcher do
       expect(Portfolio.find_by(path: 'https://still-here.com')).to be_present
     end
 
+    it 'marks portfolios as inactive when removed from the feed and purges their screenshots' do
+      existing = create(:portfolio, name: 'To Be Removed', path: 'https://removed-with-screenshot.com', active: true)
+      existing.site_screenshot.attach(
+        io: StringIO.new('fake image data'),
+        filename: 'screenshot.png',
+        content_type: 'image/png'
+      )
+      expect(existing.site_screenshot).to be_attached
+
+      feed = [
+        { 'name' => 'Still Here', 'url' => 'https://still-here.com', 'tagline' => 'Present' }
+      ]
+      stub_feed(feed)
+
+      described_class.fetch_and_sync
+
+      existing.reload
+      expect(existing.active).to be false
+      expect(existing.site_screenshot).not_to be_attached
+      expect(Portfolio.find_by(path: 'https://still-here.com')).to be_present
+    end
+
     it 'updates name and tagline when URL stays the same' do
       portfolio = create(:portfolio,
                          name: 'Old Name',

@@ -40,7 +40,11 @@ class DeveloperPortfoliosFetcher
     current_paths = data.map { |p| p['url'] }.compact
 
     # Mark any portfolios that are no longer present in the feed as inactive
-    Portfolio.where.not(path: current_paths).update_all(active: false)
+    # and remove their associated screenshots to avoid keeping stale images.
+    Portfolio.where.not(path: current_paths).find_each do |portfolio|
+      portfolio.update_columns(active: false) # skip validations for bulk update
+      portfolio.site_screenshot.purge if portfolio.site_screenshot.attached?
+    end
 
     data.each do |portfolio_data|
       url = portfolio_data['url']
