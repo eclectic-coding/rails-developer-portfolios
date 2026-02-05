@@ -17,6 +17,10 @@ class DeveloperPortfoliosFetcher
     if response.is_a?(Net::HTTPSuccess)
       data = JSON.parse(response.body)
       sync_portfolios(data)
+
+      # Bump a version key used for fragment caching of portfolios views.
+      Rails.cache.increment('portfolios_version') || Rails.cache.write('portfolios_version', 1)
+
       Rails.logger.info "Successfully synced #{data.size} developer portfolios"
       true
     else
