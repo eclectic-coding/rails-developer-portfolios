@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { chromium } from 'playwright';
-import fs from 'fs';
 
 async function main() {
   const [,, url, outputPath] = process.argv;
