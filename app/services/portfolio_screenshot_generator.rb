@@ -42,7 +42,7 @@ class PortfolioScreenshotGenerator
     Rails.logger.error "Failed to generate screenshot for Portfolio##{@portfolio.id}: #{e.class} - #{e.message}"
     nil
   ensure
-    # Optionally cleanup temp file here if you don't want to keep it
-    # FileUtils.rm_f(tmpfile) if tmpfile && File.exist?(tmpfile)
+    # Cleanup temp file now that it has been attached (or if generation failed)
+    FileUtils.rm_f(tmpfile) if tmpfile && File.exist?(tmpfile)
   end
 end
