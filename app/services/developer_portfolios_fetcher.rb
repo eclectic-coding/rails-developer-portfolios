@@ -17,6 +17,10 @@ class DeveloperPortfoliosFetcher
     if response.is_a?(Net::HTTPSuccess)
       data = JSON.parse(response.body)
       sync_portfolios(data)
+
+      # Bump a version key used for fragment caching of portfolios views.
+      Rails.cache.increment('portfolios_version') || Rails.cache.write('portfolios_version', 1)
+
       Rails.logger.info "Successfully synced #{data.size} developer portfolios"
       true
     else
@@ -40,7 +44,11 @@ class DeveloperPortfoliosFetcher
     current_paths = data.map { |p| p['url'] }.compact
 
     # Mark any portfolios that are no longer present in the feed as inactive
-    Portfolio.where.not(path: current_paths).update_all(active: false)
+    # and remove their associated screenshots to avoid keeping stale images.
+    Portfolio.where.not(path: current_paths).find_each do |portfolio|
+      portfolio.update_columns(active: false) # skip validations for bulk update
+      portfolio.site_screenshot.purge if portfolio.site_screenshot.attached?
+    end
 
     data.each do |portfolio_data|
       url = portfolio_data['url']

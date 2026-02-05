@@ -48,4 +48,11 @@ RSpec.describe Portfolio, type: :model do
       expect(result).not_to include(inactive)
     end
   end
+
+  describe 'attachments' do
+    it 'responds to site_screenshot attachment' do
+      portfolio = build(:portfolio)
+      expect(portfolio).to respond_to(:site_screenshot)
+    end
+  end
 end
