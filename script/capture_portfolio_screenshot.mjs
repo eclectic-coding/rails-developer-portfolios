@@ -15,17 +15,28 @@ async function main() {
   const page = await browser.newPage();
 
   try {
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
-    await page.setViewportSize({ width: 1280, height: 720 });
-    await page.screenshot({ path: outputPath, fullPage: true });
+    const VIEWPORT = { width: 1280, height: 450 };
+    const GOTO_TIMEOUT_MS = 30000;  // shorter timeout for problematic sites
+    const POST_LOAD_DELAY_MS = 3000; // allow loaders/animations to finish
+
+    await page.setViewportSize(VIEWPORT);
+
+    // Use a more forgiving waitUntil to avoid getting stuck on SPAs and long-idle pages.
+    await page.goto(url, { waitUntil: 'load', timeout: GOTO_TIMEOUT_MS });
+
+    await page.waitForTimeout(POST_LOAD_DELAY_MS);
+
+    await page.screenshot({ path: outputPath, fullPage: false });
+
     await browser.close();
     process.exit(0);
   } catch (error) {
     console.error('Error capturing screenshot:', error);
-    await browser.close();
+    try {
+      await browser.close();
+    } catch (_) {}
     process.exit(1);
   }
 }
 
 main();
-

@@ -5,7 +5,7 @@ class FetchDeveloperPortfoliosJob < ApplicationJob
     DeveloperPortfoliosFetcher.fetch_and_sync
 
     Portfolio.active.find_each do |portfolio|
-      PortfolioScreenshotGenerator.generate_for(portfolio)
+      GeneratePortfolioScreenshotJob.perform_later(portfolio.id)
     end
   end
 end

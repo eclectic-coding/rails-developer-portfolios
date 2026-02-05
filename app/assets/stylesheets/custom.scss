@@ -153,6 +153,15 @@ address {
   line-height: 1.4;
 }
 
+// Portfolio card screenshots
+.card-img-top {
+  max-height: 220px; // limit vertical size in the card
+  width: 100%;
+  object-fit: cover; // crop while preserving aspect ratio
+  object-position: top; // focus on the top of the screenshot
+  display: block;
+}
+
 // Letter filter buttons styled like cards
 .letter-filter-button {
   display: inline-flex;
