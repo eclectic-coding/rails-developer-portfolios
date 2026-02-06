@@ -5,12 +5,11 @@ Rails.application.routes.draw do
     resources :searches, only: [:index]
   end
 
-  # Root is the portfolios index (delegated to the search controller)
-  root to: 'portfolios/searches#index'
+  # Root is the portfolios index
+  root to: 'portfolios#index'
 
-  # Developer portfolios API endpoint - keep /portfolios for now, but have it handled by the namespaced searches controller
+  # Developer portfolios API endpoint - handled by PortfoliosController#index
   resources :portfolios, only: [:index]
-  get '/portfolios', to: 'portfolios/searches#index'
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

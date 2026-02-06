@@ -49,6 +49,27 @@ RSpec.describe Portfolio, type: :model do
     end
   end
 
+  describe '.starting_with' do
+    it 'filters portfolios whose names start with the given letter (case-insensitive)' do
+      a1 = create(:portfolio, name: 'Alice', path: 'https://alice.com')
+      a2 = create(:portfolio, name: 'alpha', path: 'https://alpha.com')
+      b1 = create(:portfolio, name: 'Bob',   path: 'https://bob.com')
+
+      result = described_class.starting_with('a')
+
+      expect(result).to match_array([a1, a2])
+      expect(result).not_to include(b1)
+    end
+
+    it 'returns all records when letter is nil or blank' do
+      p1 = create(:portfolio, name: 'Alice', path: 'https://alice.com')
+      p2 = create(:portfolio, name: 'Bob',   path: 'https://bob.com')
+
+      expect(described_class.starting_with(nil)).to match_array([p1, p2])
+      expect(described_class.starting_with('')).to match_array([p1, p2])
+    end
+  end
+
   describe 'attachments' do
     it 'responds to site_screenshot attachment' do
       portfolio = build(:portfolio)

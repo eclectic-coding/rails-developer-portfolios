@@ -7,6 +7,26 @@ RSpec.describe FetchDeveloperPortfoliosJob, type: :job do
 
       described_class.perform_now
     end
+
+    it 'enqueues a screenshot job for each active portfolio' do
+      # Mock the active scope and its find_each iteration
+      portfolio1 = instance_double('Portfolio', id: 1)
+      portfolio2 = instance_double('Portfolio', id: 2)
+
+      active_relation = double('ActiveRelation')
+
+      expect(Portfolio).to receive(:active).and_return(active_relation)
+      expect(active_relation).to receive(:find_each).and_yield(portfolio1).and_yield(portfolio2)
+
+      # Mock the screenshot job enqueueing
+      expect(GeneratePortfolioScreenshotJob).to receive(:perform_later).with(1)
+      expect(GeneratePortfolioScreenshotJob).to receive(:perform_later).with(2)
+
+      # Stub the fetcher since it is already covered by another example
+      allow(DeveloperPortfoliosFetcher).to receive(:fetch_and_sync)
+
+      described_class.perform_now
+    end
   end
 
   describe 'queueing' do

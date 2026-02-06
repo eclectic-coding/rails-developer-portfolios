@@ -1,5 +1,11 @@
 class PortfoliosController < ApplicationController
   def index
-    redirect_to portfolios_searches_path(params.permit(:letter, :q)), allow_other_host: false
+    @query = params[:q].to_s.presence
+
+    @portfolios = Portfolio.active.search(@query)
+
+    respond_to do |format|
+      format.html
+    end
   end
 end
