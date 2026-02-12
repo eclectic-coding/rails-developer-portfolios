@@ -13,22 +13,22 @@
     <%= render 'portfolios/portfolio_cards', portfolios: @portfolios %>
   </turbo-frame>
 
-  <div id="portfolios_stream"></div>
+  <div id="infinite-scroll" data-controller="infinite-scroll">
+    <div id="portfolios_stream"></div>
 
-  <div id="infinite-scroll"
-       data-controller="infinite-scroll"
-       data-infinite-scroll-url-value="<%= @pagy.next ? portfolios_path(page: @pagy.next, q: @query, letter: @letter) : '' %>">
-
-    <% if @pagy.next %>
-      <div data-infinite-scroll-target="sentinel" class="text-center py-4">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading more portfolios...</span>
+    <div id="sentinel-container"
+         data-next-page-url="<%= @pagy.next ? portfolios_path(page: @pagy.next, q: @query, letter: @letter) : '' %>">
+      <% if @pagy.next %>
+        <div data-infinite-scroll-target="sentinel" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading more portfolios...</span>
+          </div>
         </div>
-      </div>
-    <% else %>
-      <div class="text-center py-4 text-muted">
-        <small>That's all the portfolios!</small>
-      </div>
-    <% end %>
+      <% else %>
+        <div class="text-center py-4 text-muted">
+          <small>That's all the portfolios!</small>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>

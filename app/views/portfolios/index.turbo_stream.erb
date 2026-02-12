@@ -1,3 +1,4 @@
+<%# Append new portfolio cards to the stream %>
 <%= turbo_stream.append "portfolios_stream" do %>
   <div class="row g-4">
     <% @portfolios.each do |portfolio| %>
@@ -8,11 +9,10 @@
   </div>
 <% end %>
 
-<%= turbo_stream.update "infinite-scroll" do %>
-  <div data-controller="infinite-scroll"
-       data-infinite-scroll-url-value="<%= @pagy.next ? portfolios_path(page: @pagy.next, q: @query, letter: @letter) : '' %>">
-    <div id="portfolios_stream"></div>
-
+<%# Replace the sentinel with the new one (or end message) with next URL as data attribute %>
+<%= turbo_stream.replace "sentinel-container" do %>
+  <div id="sentinel-container"
+       data-next-page-url="<%= @pagy.next ? portfolios_path(page: @pagy.next, q: @query, letter: @letter) : '' %>">
     <% if @pagy.next %>
       <div data-infinite-scroll-target="sentinel" class="text-center py-4">
         <div class="spinner-border text-primary" role="status">
@@ -26,4 +26,5 @@
     <% end %>
   </div>
 <% end %>
+
 

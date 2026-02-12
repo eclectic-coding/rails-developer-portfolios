@@ -5280,7 +5280,7 @@
   function morphTurboFrameElements(currentFrame, newFrame) {
     MorphingFrameRenderer.renderElement(currentFrame, newFrame);
   }
-  var Turbo = /* @__PURE__ */ Object.freeze({
+  var Turbo2 = /* @__PURE__ */ Object.freeze({
     __proto__: null,
     PageRenderer,
     PageSnapshot,
@@ -6025,7 +6025,7 @@
       element = element.parentElement;
     }
   })();
-  window.Turbo = { ...Turbo, StreamActions };
+  window.Turbo = { ...Turbo2, StreamActions };
   start();
 
   // ../../node_modules/@hotwired/turbo-rails/app/javascript/turbo/cable.js
@@ -6736,13 +6736,13 @@
     }
   };
   function add(map, key, value) {
-    fetch(map, key).add(value);
+    fetch2(map, key).add(value);
   }
   function del(map, key, value) {
-    fetch(map, key).delete(value);
+    fetch2(map, key).delete(value);
     prune(map, key);
   }
-  function fetch(map, key) {
+  function fetch2(map, key) {
     let values = map.get(key);
     if (!values) {
       values = /* @__PURE__ */ new Set();
@@ -8612,6 +8612,103 @@
     }
   };
 
+  // controllers/infinite_scroll_controller.js
+  var infinite_scroll_controller_default = class extends Controller {
+    static targets = ["sentinel"];
+    connect() {
+      console.log("InfiniteScrollController connected");
+      this.loading = false;
+      this.observer = null;
+      this.createObserver();
+    }
+    disconnect() {
+      if (this.observer) {
+        this.observer.disconnect();
+      }
+    }
+    // Called when sentinel target is added/changed
+    sentinelTargetConnected() {
+      console.log("Sentinel target connected, reconnecting observer");
+      setTimeout(() => {
+        this.createObserver();
+      }, 50);
+    }
+    createObserver() {
+      if (this.observer) {
+        this.observer.disconnect();
+      }
+      if (!this.hasSentinelTarget) {
+        console.log("No sentinel target found, skipping observer creation");
+        return;
+      }
+      const nextUrl = this.getNextPageUrl();
+      console.log("Creating observer with next URL:", nextUrl);
+      if (!nextUrl) {
+        console.log("No next page URL, stopping");
+        return;
+      }
+      const options = {
+        root: null,
+        // viewport
+        rootMargin: "200px",
+        // Start loading 200px before the sentinel is visible
+        threshold: 0.1
+      };
+      this.observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !this.loading) {
+            const url = this.getNextPageUrl();
+            if (url) {
+              console.log("Sentinel is intersecting, loading more...");
+              this.loadMore(url);
+            }
+          }
+        });
+      }, options);
+      this.observer.observe(this.sentinelTarget);
+      console.log("Observer created and watching sentinel");
+    }
+    getNextPageUrl() {
+      const container = document.getElementById("sentinel-container");
+      if (!container) {
+        console.log("Sentinel container not found");
+        return null;
+      }
+      const url = container.dataset.nextPageUrl;
+      console.log("Next page URL from data attribute:", url);
+      return url || null;
+    }
+    async loadMore(url) {
+      if (this.loading || !url) {
+        console.log("Skipping load - loading:", this.loading, "url:", url);
+        return;
+      }
+      this.loading = true;
+      console.log("\u2192 Fetching:", url);
+      try {
+        const response = await fetch(url, {
+          headers: {
+            Accept: "text/vnd.turbo-stream.html"
+          }
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const html = await response.text();
+        console.log("\u2713 Received turbo stream response, rendering...");
+        if (window.Turbo) {
+          Turbo.renderStreamMessage(html);
+        }
+        console.log("\u2713 Rendering complete");
+      } catch (error2) {
+        console.error("\u2717 Error loading more portfolios:", error2);
+      } finally {
+        this.loading = false;
+        console.log("\u2713 Load complete, ready for next page");
+      }
+    }
+  };
+
   // controllers/portfolio_search_controller.js
   var portfolio_search_controller_default = class extends Controller {
     static values = {
@@ -8637,6 +8734,7 @@
 
   // controllers/index.js
   application.register("hello", hello_controller_default);
+  application.register("infinite-scroll", infinite_scroll_controller_default);
   application.register("portfolio-search", portfolio_search_controller_default);
 
   // ../../node_modules/@popperjs/core/lib/index.js
