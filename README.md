@@ -44,6 +44,7 @@ fetch('/portfolios.json')
 
 ## 📚 Documentation
 
+- [Deployment Guide](DEPLOYMENT_GUIDE.md) - **Post-deployment setup and operations**
 - [Quick Start Guide](docs/QUICK_START.md) - Get started quickly
 - [API Documentation](docs/DEVELOPER_PORTFOLIOS_API.md) - Full API reference
 - [Setup Summary](docs/SETUP_SUMMARY.md) - Implementation details

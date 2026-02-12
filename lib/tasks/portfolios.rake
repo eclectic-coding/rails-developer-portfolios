@@ -49,4 +49,63 @@ namespace :portfolios do
   task clear_cache: :environment do
     puts "Cache is no longer used. Portfolios are stored in the database."
   end
+
+  desc "Generate screenshots for portfolios in batches (with delay between batches)"
+  task generate_screenshots: :environment do
+    batch_size = ENV.fetch("BATCH_SIZE", 10).to_i
+    delay_seconds = ENV.fetch("DELAY_SECONDS", 30).to_i
+
+    portfolios = Portfolio.active.to_a
+    total = portfolios.count
+
+    puts "Generating screenshots for #{total} active portfolios"
+    puts "Batch size: #{batch_size}"
+    puts "Delay between batches: #{delay_seconds} seconds"
+    puts ""
+
+    portfolios.each_slice(batch_size).with_index do |batch, batch_index|
+      batch_number = batch_index + 1
+      total_batches = (total.to_f / batch_size).ceil
+
+      puts "Processing batch #{batch_number}/#{total_batches} (#{batch.size} portfolios)..."
+
+      batch.each do |portfolio|
+        GeneratePortfolioScreenshotJob.perform_later(portfolio.id)
+        print "."
+      end
+
+      puts " ✓"
+
+      # Don't delay after the last batch
+      if batch_index < total_batches - 1
+        puts "Waiting #{delay_seconds} seconds before next batch..."
+        sleep delay_seconds
+      end
+    end
+
+    puts "\n✓ All screenshot jobs queued successfully!"
+    puts "Jobs will be processed by Solid Queue in the background."
+  end
+
+  desc "Initial setup: fetch portfolios and generate screenshots in batches"
+  task setup: :environment do
+    puts "=" * 60
+    puts "INITIAL SETUP: Fetching portfolios and generating screenshots"
+    puts "=" * 60
+    puts ""
+
+    # Step 1: Fetch portfolios
+    puts "Step 1: Fetching portfolios from upstream..."
+    Rake::Task["portfolios:fetch"].invoke
+    puts ""
+
+    # Step 2: Generate screenshots
+    puts "Step 2: Generating screenshots in batches..."
+    Rake::Task["portfolios:generate_screenshots"].invoke
+    puts ""
+
+    puts "=" * 60
+    puts "SETUP COMPLETE!"
+    puts "=" * 60
+  end
 end
