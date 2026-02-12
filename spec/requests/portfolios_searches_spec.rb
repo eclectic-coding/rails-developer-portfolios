@@ -19,4 +19,3 @@ RSpec.describe Portfolios::SearchesController, type: :request do
     end
   end
 end
-
