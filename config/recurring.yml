@@ -16,10 +16,10 @@ production:
 
   fetch_developer_portfolios:
     class: FetchDeveloperPortfoliosJob
-    schedule: every day at 2am
+    schedule: every week on Monday at 2am
 
 development:
   fetch_developer_portfolios:
     class: FetchDeveloperPortfoliosJob
-    schedule: every day at 2am
+    schedule: every week on Monday at 2am
 

@@ -6,7 +6,7 @@ A Rails application that fetches and displays developer portfolio data from GitH
 
 - **API Integration**: Fetches portfolio data from GitHub repository
 - **Smart Caching**: 24-hour cache for optimal performance
-- **Automatic Updates**: Daily background job refreshes data at 2 AM
+- **Automatic Updates**: Weekly background job refreshes data every Monday at 2 AM
 - **Multiple Formats**: JSON and HTML endpoints
 - **Frontend Ready**: Includes Stimulus controller for easy integration
 - **Fully Tested**: Comprehensive test coverage
@@ -76,7 +76,7 @@ The recurring job is configured in `config/recurring.yml`:
 development:
   fetch_developer_portfolios:
     class: FetchDeveloperPortfoliosJob
-    schedule: every day at 2am
+    schedule: every week on Monday at 2am
 ```
 
 ## 💾 Data Source
@@ -87,5 +87,5 @@ Fetches from: https://raw.githubusercontent.com/emmabostian/developer-portfolios
 
 **Portfolios**: Developer portfolios loaded from upstream feed (count varies over time)
 **Cache duration**: 24 hours
-**Auto-refresh**: Daily at 2 AM
+**Auto-refresh**: Weekly on Monday at 2 AM
 **Tests**: See CI status or run locally with `bin/rspec`
