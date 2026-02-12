@@ -2,7 +2,7 @@
   <div class="text-center mb-5">
     <h1 class="display-4">Developer Portfolios</h1>
     <p class="lead text-muted">
-      A curated collection of <span class="fw-bold"><%= @total_portfolios_count %></span> developer portfolios
+      A curated collection of <span class="fw-bold"><%= @portfolios.size %></span> developer portfolios
     </p>
     <small>Data sourced from <a href="https://github.com/emmabostian/developer-portfolios">emmabostian/developer-portfolios</a></small>
   </div>
@@ -12,4 +12,23 @@
   <turbo-frame id="portfolios_cards">
     <%= render 'portfolios/portfolio_cards', portfolios: @portfolios %>
   </turbo-frame>
+
+  <div id="infinite-scroll" data-controller="infinite-scroll">
+    <div id="portfolios_stream"></div>
+
+    <div id="sentinel-container"
+         data-next-page-url="<%= @pagy.next ? portfolios_path(page: @pagy.next, q: @query, letter: @letter) : '' %>">
+      <% if @pagy.next %>
+        <div data-infinite-scroll-target="sentinel" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading more portfolios...</span>
+          </div>
+        </div>
+      <% else %>
+        <div class="text-center py-4 text-muted">
+          <small>That's all the portfolios!</small>
+        </div>
+      <% end %>
+    </div>
+  </div>
 </div>

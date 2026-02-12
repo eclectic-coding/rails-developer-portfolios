@@ -10,8 +10,8 @@ class PortfolioScreenshotGenerator
   end
 
   def generate
-    return unless @portfolio.active?
-    return unless @portfolio.path.present?
+    return nil unless @portfolio.active?
+    return nil unless @portfolio.path.present?
 
     FileUtils.mkdir_p(OUTPUT_DIR)
 
@@ -27,7 +27,7 @@ class PortfolioScreenshotGenerator
 
     success = system(*cmd)
 
-    return unless success && File.exist?(tmpfile)
+    return nil unless success && File.exist?(tmpfile)
 
     File.open(tmpfile) do |file|
       @portfolio.site_screenshot.attach(
@@ -43,6 +43,6 @@ class PortfolioScreenshotGenerator
     nil
   ensure
     # Cleanup temp file now that it has been attached (or if generation failed)
-    FileUtils.rm_f(tmpfile) if tmpfile && File.exist?(tmpfile)
+    FileUtils.rm_f(tmpfile) if defined?(tmpfile) && tmpfile && File.exist?(tmpfile)
   end
 end
