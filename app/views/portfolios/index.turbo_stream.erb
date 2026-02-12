@@ -1,0 +1,29 @@
+<%= turbo_stream.append "portfolios_stream" do %>
+  <div class="row g-4">
+    <% @portfolios.each do |portfolio| %>
+      <div class="col-sm-6 col-md-4 col-lg-3">
+        <%= render 'portfolios/card', portfolio: portfolio %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<%= turbo_stream.update "infinite-scroll" do %>
+  <div data-controller="infinite-scroll"
+       data-infinite-scroll-url-value="<%= @pagy.next ? portfolios_path(page: @pagy.next, q: @query, letter: @letter) : '' %>">
+    <div id="portfolios_stream"></div>
+
+    <% if @pagy.next %>
+      <div data-infinite-scroll-target="sentinel" class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading more portfolios...</span>
+        </div>
+      </div>
+    <% else %>
+      <div class="text-center py-4 text-muted">
+        <small>That's all the portfolios!</small>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+

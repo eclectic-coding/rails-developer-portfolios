@@ -3,7 +3,7 @@
     <div class="col-12 col-sm-8 col-md-6 col-lg-4 mb-3">
       <%= form_with url: portfolios_path,
                     method: :get,
-                    data: { turbo_frame: "portfolios_cards", controller: "portfolio-search" },
+                    data: { controller: "portfolio-search", turbo: "true" },
                     local: true do |f| %>
         <div class="input-group">
           <%= f.search_field :q,
@@ -11,6 +11,7 @@
                              class: "form-control",
                              placeholder: "Search portfolios by name or tagline",
                              data: { action: "input->portfolio-search#submit" } %>
+          <%= f.hidden_field :letter, value: @letter %>
         </div>
       <% end %>
     </div>
@@ -18,14 +19,14 @@
 
   <!-- All button -->
   <%= link_to "All",
-              portfolios_path,
-              data: { turbo_frame: "portfolios_cards" },
+              portfolios_path(q: @query),
+              data: { turbo: "true" },
               class: "btn btn-sm mx-1 letter-filter-button #{@letter.nil? ? 'active' : ''}" %>
 
   <% portfolio_starting_letters.each do |letter| %>
     <%= link_to letter,
                 portfolios_path(letter: letter, q: @query),
-                data: { turbo_frame: "portfolios_cards" },
+                data: { turbo: "true" },
                 class: "btn btn-sm mx-1 letter-filter-button #{@letter == letter ? 'active' : ''}" %>
   <% end %>
 </div>
