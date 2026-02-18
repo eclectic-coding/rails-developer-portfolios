@@ -4,6 +4,10 @@ namespace :portfolios do
     puts "Fetching developer portfolios and syncing to DB..."
 
     if DeveloperPortfoliosFetcher.fetch_and_sync
+      # Clear the cached starting letters since portfolios may have changed
+      Rails.cache.delete('portfolio_starting_letters')
+      puts "✓ Cache cleared"
+
       count = Portfolio.count
       active_count = Portfolio.where(active: true).count
 
@@ -45,9 +49,10 @@ namespace :portfolios do
     end
   end
 
-  desc "(Deprecated) Clear portfolios cache - no-op now that we use the database"
+  desc "Clear portfolios cache (starting letters)"
   task clear_cache: :environment do
-    puts "Cache is no longer used. Portfolios are stored in the database."
+    Rails.cache.delete('portfolio_starting_letters')
+    puts "✓ Portfolio starting letters cache cleared"
   end
 
   desc "Generate screenshots for portfolios in batches (with delay between batches)"
