@@ -54,7 +54,7 @@ Rails.application.configure do
   # Skip Solid Queue when database should be skipped
   unless ENV['SKIP_DATABASE'] == 'true'
     config.active_job.queue_adapter = :solid_queue
-    config.solid_queue.connects_to = { database: { writing: :queue } }
+  config.solid_queue.connects_to = { database: { writing: :queue } }
   end
 
   # Ignore bad email addresses and do not raise email delivery errors.
