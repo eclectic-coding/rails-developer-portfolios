@@ -39,27 +39,24 @@ For your first deployment, you need to create and migrate all databases. In Hatc
    bundle exec rake db:setup_all
    ```
 
+### Why SKIP_DATABASE is Needed
+
+During asset precompilation, Rails loads the production environment which tries to:
+- Initialize Solid Cache (needs `solid_cache_entries` table)
+- Initialize Solid Queue (needs queue tables)
+- Initialize Solid Cable (needs cable tables)
+
+The `SKIP_DATABASE=true` environment variable tells Rails to use in-memory alternatives during asset precompilation, avoiding database connections entirely.
+
 ### Deployment Process Order
 
 The deployment should follow this order:
 1. ✅ Code deployment
 2. ✅ Bundle install
-3. ✅ Database migrations (BEFORE assets:precompile)
-4. ✅ Assets precompile
+3. ✅ Database migrations (creates tables)
+4. ✅ Assets precompile (with SKIP_DATABASE=true)
 5. ✅ Server restart
 
-### Configuring Hatchbox Deploy Commands
-
-In your Hatchbox app settings, update the **Deploy Commands** to:
-
-```bash
-bundle install --without development test
-bundle exec rake db:migrate
-bundle exec rake db:migrate:cache
-bundle exec rake db:migrate:queue
-bundle exec rake db:migrate:cable
-bundle exec rake assets:precompile
-```
 
 ## What Changed
 
