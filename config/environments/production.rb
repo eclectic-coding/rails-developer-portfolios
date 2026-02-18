@@ -47,15 +47,11 @@ Rails.application.configure do
   config.active_support.report_deprecations = false
 
   # Replace the default in-process memory cache store with a durable alternative.
-  # Use memory store when database should be skipped (e.g., during asset precompilation)
-  config.cache_store = ENV['SKIP_DATABASE'] == 'true' ? :memory_store : :solid_cache_store
+  config.cache_store = :solid_cache_store
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
-  # Skip Solid Queue when database should be skipped
-  unless ENV['SKIP_DATABASE'] == 'true'
-    config.active_job.queue_adapter = :solid_queue
+  config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
-  end
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.

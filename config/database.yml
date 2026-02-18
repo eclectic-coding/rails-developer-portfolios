@@ -90,7 +90,7 @@ production:
     url: <%= ENV["DATABASE_URL"] %>
   cache:
     <<: *default
-    url: <%= ENV.fetch("CACHE_DATABASE_URL") %>
+    url: <%= ENV.fetch("CACHE_DATABASE_URL") { ENV["DATABASE_URL"] } %>
     migrations_paths: db/cache_migrate
   queue:
     <<: *default
