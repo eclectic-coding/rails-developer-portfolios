@@ -43,7 +43,7 @@ bin/rails jobs:workers
 # Should see: "✓ Active workers found: 1"
 ```
 
-## 4. Re-queue Screenshots (On Hatchbox)
+## 4. Re-queue Screenshots (After Installing Playwright)
 
 ```bash
 # In your app directory
