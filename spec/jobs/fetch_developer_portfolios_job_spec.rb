@@ -15,8 +15,12 @@ RSpec.describe FetchDeveloperPortfoliosJob, type: :job do
 
       active_relation = double('ActiveRelation')
 
+      # Create an enumerator that will be returned by find_each
+      # and then chain each_slice and with_index
+      enumerator = [portfolio1, portfolio2].to_enum
+
       expect(Portfolio).to receive(:active).and_return(active_relation)
-      expect(active_relation).to receive(:find_each).and_yield(portfolio1).and_yield(portfolio2)
+      expect(active_relation).to receive(:find_each).and_return(enumerator)
 
       # Mock the screenshot job enqueueing
       expect(GeneratePortfolioScreenshotJob).to receive(:perform_later).with(1)
