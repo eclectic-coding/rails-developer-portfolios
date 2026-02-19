@@ -140,8 +140,7 @@ RSpec.describe 'Recurring Tasks Configuration' do
         ''
       ]
 
-      invalid_schedules.each do |schedule|
-        it "rejects '#{schedule}' (not Fugit::Cron)" do
+      invalid_schedules.each do |scheduleit "rejects '#{schedule}' (not Fugit::Cron)" do
           parsed = Fugit.parse(schedule)
           expect(parsed).not_to be_instance_of(Fugit::Cron),
             "Schedule '#{schedule}' should NOT be valid (got #{parsed.class.name})"
