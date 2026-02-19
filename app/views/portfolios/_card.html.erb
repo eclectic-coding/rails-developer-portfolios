@@ -1,23 +1,31 @@
 <div class="card h-100 shadow-sm hover-card">
-  <% if portfolio.site_screenshot.attached? %>
-    <%= image_tag portfolio.site_screenshot, class: "card-img-top", alt: "Screenshot of #{portfolio.name}" %>
-  <% else %>
-    <%= image_tag "default_portfolio_screenshot.svg", class: "card-img-top", alt: "Default portfolio screenshot" %>
-  <% end %>
+  <% if portfolio.path.present? %>
+    <%= link_to portfolio.path, target: '_blank', rel: 'noopener noreferrer', class: 'text-decoration-none stretched-link' do %>
+      <% if portfolio.site_screenshot.attached? %>
+        <%= image_tag portfolio.site_screenshot, class: "card-img-top", alt: "Screenshot of #{portfolio.name}" %>
+      <% else %>
+        <%= image_tag "default_portfolio_screenshot.svg", class: "card-img-top", alt: "Default portfolio screenshot" %>
+      <% end %>
 
-  <div class="card-body">
-    <% if portfolio.path.present? %>
-      <%= link_to portfolio.path, target: '_blank', rel: 'noopener noreferrer', class: 'text-decoration-none' do %>
+      <div class="card-body">
         <h5 class="card-title text-dark"><%= portfolio.name %></h5>
         <% if portfolio.tagline.present? %>
           <p class="card-text text-muted small mb-0"><%= portfolio.tagline %></p>
         <% end %>
-      <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <% if portfolio.site_screenshot.attached? %>
+      <%= image_tag portfolio.site_screenshot, class: "card-img-top", alt: "Screenshot of #{portfolio.name}" %>
     <% else %>
+      <%= image_tag "default_portfolio_screenshot.svg", class: "card-img-top", alt: "Default portfolio screenshot" %>
+    <% end %>
+
+    <div class="card-body">
       <h5 class="card-title text-muted"><%= portfolio.name %></h5>
       <% if portfolio.tagline.present? %>
         <p class="card-text text-muted small mb-0"><%= portfolio.tagline %></p>
       <% end %>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 </div>
