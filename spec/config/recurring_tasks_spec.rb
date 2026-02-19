@@ -121,7 +121,7 @@ RSpec.describe 'Recurring Tasks Configuration' do
         'at 5am every day',
         '0 2 * * 1',  # cron format
         'every hour at minute 12',
-        'every Tuesday at 3pm',
+        'every Tuesday at 3pm'
       ]
 
       valid_schedules.each do |schedule|
@@ -137,7 +137,7 @@ RSpec.describe 'Recurring Tasks Configuration' do
         'weekly at Monday 2am',
         'Monday at 2am every week',
         'invalid schedule',
-        '',
+        ''
       ]
 
       invalid_schedules.each do |schedule|
@@ -171,4 +171,3 @@ RSpec.describe 'Recurring Tasks Configuration' do
     end
   end
 end
-
