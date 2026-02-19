@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+# Validates config/recurring.yml schedule formats
+
+require "yaml"
+require "fugit"
+
+config_file = File.expand_path("../config/recurring.yml", __dir__)
+
+unless File.exist?(config_file)
+  puts "❌ config/recurring.yml not found"
+  exit 1
+end
+
+config = YAML.load_file(config_file)
+
+puts "=" * 60
+puts "VALIDATING RECURRING TASK SCHEDULES"
+puts "=" * 60
+puts ""
+
+all_valid = true
+
+%w[production development test].each do |env|
+  next unless config[env]
+
+  puts "#{env.upcase}:"
+  config[env].each do |task_key, task_config|
+    schedule = task_config["schedule"]
+
+    if schedule.nil?
+      puts "  ❌ #{task_key}: No schedule defined"
+      all_valid = false
+      next
+    end
+
+    parsed = Fugit.parse(schedule)
+
+    if parsed
+      puts "  ✓ #{task_key}: '#{schedule}' is VALID"
+      # Don't try to calculate frequency as it's complex with Fugit
+    else
+      puts "  ❌ #{task_key}: '#{schedule}' is INVALID"
+      all_valid = false
+    end
+  end
+  puts ""
+end
+
+if all_valid
+  puts "=" * 60
+  puts "✅ ALL SCHEDULES ARE VALID"
+  puts "=" * 60
+  exit 0
+else
+  puts "=" * 60
+  puts "❌ SOME SCHEDULES ARE INVALID"
+  puts "=" * 60
+  puts ""
+  puts "Common Fugit schedule formats:"
+  puts "  - every day at 5pm"
+  puts "  - every Monday at 2am"
+  puts "  - every hour"
+  puts "  - every 15 minutes"
+  puts "  - 0 2 * * 1 (cron format)"
+  puts "  - at 5am every day"
+  exit 1
+end
+
