@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Hatchbox Post-Deploy Setup Script
+# This should be run after deploying to Hatchbox for the first time
+
+set -e
+
+echo "========================================"
+echo "Hatchbox Post-Deploy Setup"
+echo "========================================"
+echo ""
+
+# Ensure we're in the right directory
+cd "$(dirname "$0")/.."
+
+echo "1. Installing Node dependencies..."
+yarn install
+
+echo ""
+echo "2. Installing Playwright browsers..."
+npx playwright install chromium
+
+echo ""
+echo "3. Running database migrations..."
+bundle exec rails db:migrate
+
+echo ""
+echo "4. Fetching portfolios..."
+bundle exec rails portfolios:fetch
+
+echo ""
+echo "5. Generating screenshots in batches..."
+bundle exec rails portfolios:generate_screenshots BATCH_SIZE=10 DELAY_SECONDS=30
+
+echo ""
+echo "========================================"
+echo "Setup Complete!"
+echo "========================================"
+echo ""
+echo "To check status, run:"
+echo "  bundle exec rails jobs:diagnostic"
+echo ""
+echo "To view progress:"
+echo "  bundle exec rails jobs:status"
+echo ""
+

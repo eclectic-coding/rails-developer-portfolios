@@ -4,9 +4,15 @@ namespace :portfolios do
     puts "Fetching developer portfolios and syncing to DB..."
 
     if DeveloperPortfoliosFetcher.fetch_and_sync
-      # Clear the cached starting letters since portfolios may have changed
+      # Clear and repopulate the cached starting letters since portfolios may have changed
       Rails.cache.delete('portfolio_starting_letters')
       puts "✓ Cache cleared"
+
+      # Repopulate the cache immediately
+      letters = Rails.cache.fetch('portfolio_starting_letters') do
+        Portfolio.starting_letters
+      end
+      puts "✓ Cache repopulated with #{letters.length} letters: #{letters.join(', ')}"
 
       count = Portfolio.count
       active_count = Portfolio.where(active: true).count
@@ -53,6 +59,26 @@ namespace :portfolios do
   task clear_cache: :environment do
     Rails.cache.delete('portfolio_starting_letters')
     puts "✓ Portfolio starting letters cache cleared"
+
+    if ENV['REPOPULATE'] == 'true'
+      Rake::Task["portfolios:repopulate_cache"].invoke
+    end
+  end
+
+  desc "Repopulate the portfolio starting letters cache"
+  task repopulate_cache: :environment do
+    letters = Rails.cache.fetch('portfolio_starting_letters') do
+      Portfolio.starting_letters
+    end
+
+    if letters.any?
+      puts "✓ Portfolio starting letters cache repopulated"
+      puts "  Letters: #{letters.join(', ')}"
+      puts "  Count: #{letters.length}"
+    else
+      puts "⚠ No starting letters found. Are there active portfolios?"
+      puts "  Active portfolios: #{Portfolio.where(active: true).count}"
+    end
   end
 
   desc "Generate screenshots for portfolios in batches (with delay between batches)"

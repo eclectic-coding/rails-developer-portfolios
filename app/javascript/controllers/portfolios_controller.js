@@ -5,6 +5,7 @@ export default class extends Controller {
   static targets = ["container", "loading", "error"]
 
   connect() {
+    console.log("PortfoliosController connected")
     this.loadPortfolios()
   }
 

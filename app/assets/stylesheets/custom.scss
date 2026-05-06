@@ -141,10 +141,23 @@ address {
 // Portfolio Cards
 .hover-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative; // Required for stretched-link to work
 
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    cursor: pointer;
+  }
+
+  // Ensure the entire card is clickable
+  .stretched-link::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    content: "";
   }
 }
 
