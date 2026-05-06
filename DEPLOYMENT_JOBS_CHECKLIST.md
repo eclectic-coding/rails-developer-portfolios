@@ -16,7 +16,7 @@ In Hatchbox dashboard:
 SSH into your server and run:
 ```bash
 cd /path/to/your-app
-rails jobs:workers
+bundle exec rake jobs:workers
 ```
 
 **Expected output:**
@@ -37,17 +37,17 @@ rails jobs:workers
 
 After deployment or when workers are confirmed running:
 ```bash
-rails jobs:update_feed
+bundle exec rake jobs:update_feed
 ```
 
 ### 4. ✅ Monitor Progress
 
 ```bash
 # Check status every few minutes
-rails jobs:status
+bundle exec rake jobs:status
 
 # Get full diagnostic
-rails jobs:diagnostic
+bundle exec rake jobs:diagnostic
 ```
 
 ## Your Procfile Configuration
@@ -71,17 +71,17 @@ worker: bundle exec rake solid_queue:start
 ### "Jobs stuck in pending"
 **Problem:** Workers may be overwhelmed or crashed
 **Solution:**
-1. Check worker status: `rails jobs:workers`
-2. Check for errors: `rails jobs:failed`
+1. Check worker status: `bundle exec rake jobs:workers`
+2. Check for errors: `bundle exec rake jobs:failed`
 3. Restart workers via Hatchbox
 4. May need to increase worker count in Hatchbox
 
 ### "Many failed jobs"
 **Problem:** Network issues, timeouts, or invalid data
 **Solution:**
-1. Check failures: `rails jobs:failed`
+1. Check failures: `bundle exec rake jobs:failed`
 2. Fix underlying issue (network, URL validation, etc.)
-3. Retry: `rails jobs:retry_failed`
+3. Retry: `bundle exec rake jobs:retry_failed`
 
 ## Scheduled Jobs
 
@@ -90,7 +90,7 @@ If you want jobs to run automatically (e.g., daily updates):
 1. **Option A: Cron Job (Recommended)**
    ```bash
    # Add to crontab (via Hatchbox or manually)
-   0 2 * * * cd /path/to/app && rails jobs:update_feed >> log/cron.log 2>&1
+   0 2 * * * cd /path/to/app && bundle exec rake jobs:update_feed >> log/cron.log 2>&1
    ```
    This runs the update daily at 2 AM.
 
@@ -107,17 +107,19 @@ ssh deploy@your-server.com
 cd /path/to/rails_developer_portfolios
 
 # 3. Check workers are running
-rails jobs:workers
+bundle exec rake jobs:workers
 
 # 4. If workers are running, update feed
-rails jobs:update_feed
+bundle exec rake jobs:update_feed
 
 # 5. Monitor progress
-rails jobs:status
+bundle exec rake jobs:status
 
 # 6. Check results after jobs complete
-rails jobs:diagnostic
+bundle exec rake jobs:diagnostic
 ```
+
+**💡 Important:** Always use `bundle exec rake` (not `rails`) for these custom tasks!
 
 ## Need Help?
 

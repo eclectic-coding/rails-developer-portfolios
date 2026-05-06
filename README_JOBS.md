@@ -41,19 +41,21 @@ ssh deploy@your-server.com
 cd /path/to/rails_developer_portfolios
 
 # 3. Check that workers are running
-rails jobs:workers
+bundle exec rake jobs:workers
 
 # If workers aren't running, enable them in Hatchbox dashboard
 
 # 4. Update feed and queue screenshots
-rails jobs:update_feed
+bundle exec rake jobs:update_feed
 
 # 5. Check progress
-rails jobs:status
+bundle exec rake jobs:status
 
 # 6. Wait a few minutes, then check again
-rails jobs:diagnostic
+bundle exec rake jobs:diagnostic
 ```
+
+**⚠️ Important:** Use `bundle exec rake` (not `rails`) for these custom tasks!
 
 ## 📚 Which Document Should I Use?
 
@@ -97,7 +99,7 @@ rails jobs:diagnostic
 
 ### Workers Not Running
 ```bash
-rails jobs:workers
+bundle exec rake jobs:workers
 # If shows "No active workers found":
 # 1. Check Hatchbox - are background workers enabled?
 # 2. Check Procfile (should be: worker: bundle exec rake solid_queue:start)
@@ -107,59 +109,61 @@ rails jobs:workers
 
 ### Jobs Stuck
 ```bash
-rails jobs:status     # See if jobs are pending
-rails jobs:failed     # Check for errors
-rails jobs:workers    # Verify workers are running
+bundle exec rake jobs:status     # See if jobs are pending
+bundle exec rake jobs:failed     # Check for errors
+bundle exec rake jobs:workers    # Verify workers are running
 ```
 
 ### Screenshots Missing
 ```bash
-rails jobs:missing_screenshots    # See which ones are missing
-rails jobs:generate_screenshots   # Generate them
+bundle exec rake jobs:missing_screenshots    # See which ones are missing
+bundle exec rake jobs:generate_screenshots   # Generate them
 ```
 
 ## 🎓 Examples
 
 ### Daily Update Routine
 ```bash
-rails jobs:update_feed
+bundle exec rake jobs:update_feed
 # Wait 5-10 minutes
-rails jobs:diagnostic
+bundle exec rake jobs:diagnostic
 ```
 
 ### Fix Failed Jobs
 ```bash
-rails jobs:failed           # See what failed
+bundle exec rake jobs:failed           # See what failed
 # Fix the underlying issue (check URLs, network, etc.)
-rails jobs:retry_failed     # Retry them
-rails jobs:status           # Monitor progress
+bundle exec rake jobs:retry_failed     # Retry them
+bundle exec rake jobs:status           # Monitor progress
 ```
 
 ### Generate Screenshot for One Portfolio
 ```bash
-rails jobs:generate_screenshot[123]
+bundle exec rake jobs:generate_screenshot[123]
 # Replace 123 with actual portfolio ID
 ```
 
 ## 📅 Recommended Schedule
 
-**Daily:** Run `rails jobs:update_feed` once per day
+**Daily:** Run `bundle exec rake jobs:update_feed` once per day
 - Keeps feed current
 - Generates screenshots for new portfolios
 - Can be automated with cron or Rails recurring jobs
 
-**Weekly:** Run `rails jobs:diagnostic` to check overall health
+**Weekly:** Run `bundle exec rake jobs:diagnostic` to check overall health
 
 **As Needed:**
-- `rails jobs:retry_failed` if jobs fail
-- `rails jobs:generate_screenshots` to regenerate all screenshots
+- `bundle exec rake jobs:retry_failed` if jobs fail
+- `bundle exec rake jobs:generate_screenshots` to regenerate all screenshots
 
 ## 🎉 You're All Set!
 
 Everything you need is now in place. Just:
 1. Make sure workers are running on your server
-2. Run `rails jobs:update_feed` when you want to update
-3. Use `rails jobs:diagnostic` to check status
+2. Run `bundle exec rake jobs:update_feed` when you want to update
+3. Use `bundle exec rake jobs:diagnostic` to check status
+
+**Remember:** Use `bundle exec rake` (not `rails`) for these custom tasks on the server!
 
 ---
 

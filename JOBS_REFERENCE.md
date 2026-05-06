@@ -9,69 +9,71 @@ Quick reference for manually running jobs on the server to update feeds and gene
 cd /path/to/rails_developer_portfolios
 
 # Update feed and queue all screenshot jobs
-rails jobs:update_feed
+bundle exec rake jobs:update_feed
 
 # Check status
-rails jobs:diagnostic
+bundle exec rake jobs:diagnostic
 ```
+
+**⚠️ Important:** Use `bundle exec rake` (not `rails`) for these custom tasks on the server!
 
 ## 📋 Available Commands
 
 ### Main Commands
 
-#### `rails jobs:update_feed`
+#### `bundle exec rake jobs:update_feed`
 **Primary command** - Updates the feed and queues screenshot generation
 - Fetches latest portfolios from the feed
 - Syncs new/updated portfolios to database
 - Automatically queues screenshot jobs for all active portfolios
 - Use this when you want to refresh everything
 
-#### `rails jobs:run_all`
+#### `bundle exec rake jobs:run_all`
 Same as `update_feed` but with additional diagnostic output at the end.
 
-#### `rails jobs:generate_screenshots`
+#### `bundle exec rake jobs:generate_screenshots`
 Generate screenshots for all active portfolios without updating the feed
 - Prompts for confirmation before queueing
 - Useful if feed is already up-to-date but screenshots need regeneration
 
-#### `rails jobs:generate_screenshot[ID]`
+#### `bundle exec rake jobs:generate_screenshot[ID]`
 Generate screenshot for a specific portfolio
 ```bash
 # Example: Generate screenshot for portfolio ID 123
-rails jobs:generate_screenshot[123]
+bundle exec rake jobs:generate_screenshot[123]
 ```
 
 ### Monitoring Commands
 
-#### `rails jobs:diagnostic`
+#### `bundle exec rake jobs:diagnostic`
 **Full system health check** - Shows:
 - Worker status (are background jobs running?)
 - Job queue status (pending/failed/completed)
 - Portfolio screenshot status
 
-#### `rails jobs:status`
+#### `bundle exec rake jobs:status`
 Quick view of job queue status
 - Total, pending, failed, and completed jobs
 - Screenshot-specific job counts
 - Recent pending jobs
 
-#### `rails jobs:workers`
+#### `bundle exec rake jobs:workers`
 Check if Solid Queue background workers are running
 - Shows active worker processes
 - Displays last heartbeat times
 - Warns if no workers are found
 
-#### `rails jobs:failed`
+#### `bundle exec rake jobs:failed`
 Detailed view of failed jobs
 - Shows error messages and backtraces
 - Up to 20 most recent failures
 
-#### `rails jobs:missing_screenshots`
+#### `bundle exec rake jobs:missing_screenshots`
 Lists portfolios that don't have screenshots yet
 
 ### Maintenance Commands
 
-#### `rails jobs:retry_failed`
+#### `bundle exec rake jobs:retry_failed`
 Retry all failed jobs
 - Automatically requeues any failed jobs
 - Useful after fixing issues that caused failures

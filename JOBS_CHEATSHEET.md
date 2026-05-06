@@ -4,50 +4,54 @@
 
 ```bash
 # Update feed and generate screenshots (PRIMARY COMMAND)
-rails jobs:update_feed
+bundle exec rake jobs:update_feed
 
 # Check everything is working
-rails jobs:diagnostic
+bundle exec rake jobs:diagnostic
 
 # Check job queue status
-rails jobs:status
+bundle exec rake jobs:status
 
 # Retry failed jobs
-rails jobs:retry_failed
+bundle exec rake jobs:retry_failed
 ```
+
+**Note:** Use `rake` (not `rails`) for these custom tasks on the server!
 
 ## All Available Commands
 
 | Command | Description |
 |---------|-------------|
-| `rails jobs:update_feed` | ⭐ Update feed & queue screenshots |
-| `rails jobs:diagnostic` | 📊 Full system health check |
-| `rails jobs:status` | 📈 Job queue status |
-| `rails jobs:workers` | 👷 Check if workers are running |
-| `rails jobs:failed` | ❌ Show failed jobs details |
-| `rails jobs:retry_failed` | 🔄 Retry all failed jobs |
-| `rails jobs:generate_screenshots` | 📸 Queue all screenshot jobs |
-| `rails jobs:generate_screenshot[ID]` | 📸 Screenshot for one portfolio |
-| `rails jobs:missing_screenshots` | 🔍 Find portfolios without screenshots |
-| `rails jobs:run_all` | 🎯 Update feed (alias) |
+| `rake jobs:update_feed` | ⭐ Update feed & queue screenshots |
+| `rake jobs:diagnostic` | 📊 Full system health check |
+| `rake jobs:status` | 📈 Job queue status |
+| `rake jobs:workers` | 👷 Check if workers are running |
+| `rake jobs:failed` | ❌ Show failed jobs details |
+| `rake jobs:retry_failed` | 🔄 Retry all failed jobs |
+| `rake jobs:generate_screenshots` | 📸 Queue all screenshot jobs |
+| `rake jobs:generate_screenshot[ID]` | 📸 Screenshot for one portfolio |
+| `rake jobs:missing_screenshots` | 🔍 Find portfolios without screenshots |
+| `rake jobs:run_all` | 🎯 Update feed (alias) |
+
+**💡 Tip:** Add `bundle exec` before each command for safety: `bundle exec rake jobs:update_feed`
 
 ## Quick Troubleshooting
 
 **Jobs not processing?**
 ```bash
-rails jobs:workers  # Check if workers are running
+bundle exec rake jobs:workers  # Check if workers are running
 ```
 
 **Jobs failed?**
 ```bash
-rails jobs:failed       # See what failed
-rails jobs:retry_failed # Retry them
+bundle exec rake jobs:failed       # See what failed
+bundle exec rake jobs:retry_failed # Retry them
 ```
 
 **Missing screenshots?**
 ```bash
-rails jobs:missing_screenshots  # See which ones are missing
-rails jobs:generate_screenshots # Generate them
+bundle exec rake jobs:missing_screenshots  # See which ones are missing
+bundle exec rake jobs:generate_screenshots # Generate them
 ```
 
 ## Example Usage
@@ -60,18 +64,19 @@ ssh deploy@your-server.com
 cd /path/to/rails_developer_portfolios
 
 # Run the update
-rails jobs:update_feed
+bundle exec rake jobs:update_feed
 
 # Wait a minute, then check status
-rails jobs:status
+bundle exec rake jobs:status
 
 # After jobs finish, verify
-rails jobs:diagnostic
+bundle exec rake jobs:diagnostic
 ```
 
 ## ⚠️ Important
 
-- **Workers must be running** - Check with `rails jobs:workers`
+- **Use `bundle exec rake`** (not `rails`) for these tasks on the server
+- **Workers must be running** - Check with `bundle exec rake jobs:workers`
 - **Jobs are batched** - 10 portfolios every 30 seconds (prevents overload)
 - **Check Hatchbox** - If workers are down, verify Procfile and background workers are enabled
 
