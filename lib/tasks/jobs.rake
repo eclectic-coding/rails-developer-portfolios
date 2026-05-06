@@ -113,16 +113,17 @@ namespace :jobs do
     puts "=" * 60
     puts ""
 
-    portfolios = Portfolio.active.where(screenshot_status: nil)
-                          .or(Portfolio.active.where(screenshot_status: "pending"))
+    portfolios_without_screenshots = Portfolio.active.select { |p| !p.site_screenshot.attached? }
+    total_active = Portfolio.active.count
 
-    puts "Active portfolios without completed screenshots: #{portfolios.count}"
+    puts "Active portfolios: #{total_active}"
+    puts "Without screenshots: #{portfolios_without_screenshots.count}"
     puts ""
 
-    if portfolios.any?
+    if portfolios_without_screenshots.any?
       puts "Sample (first 10):"
-      portfolios.limit(10).each do |portfolio|
-        puts "  #{portfolio.name} (ID: #{portfolio.id}) - Status: #{portfolio.screenshot_status || 'not started'}"
+      portfolios_without_screenshots.first(10).each do |portfolio|
+        puts "  #{portfolio.name} (ID: #{portfolio.id})"
       end
     else
       puts "✓ All active portfolios have screenshots!"
@@ -170,6 +171,130 @@ namespace :jobs do
       end
       puts "\n✓ All failed jobs queued for retry"
     end
+  end
+
+  desc "Manually fetch and update the feed (runs FetchDeveloperPortfoliosJob)"
+  task update_feed: :environment do
+    puts "=" * 60
+    puts "UPDATING FEED AND GENERATING SCREENSHOTS"
+    puts "=" * 60
+    puts ""
+    puts "Starting FetchDeveloperPortfoliosJob..."
+    puts "This will:"
+    puts "  1. Fetch and sync portfolios from the feed"
+    puts "  2. Queue screenshot generation for active portfolios"
+    puts ""
+
+    begin
+      FetchDeveloperPortfoliosJob.perform_now
+      puts "✓ Feed update completed successfully!"
+      puts ""
+      puts "Screenshot jobs have been queued."
+      puts "Run 'rails jobs:status' to check their progress."
+    rescue => e
+      puts "✗ Error updating feed:"
+      puts "  #{e.message}"
+      puts ""
+      puts "Backtrace:"
+      e.backtrace.first(5).each { |line| puts "  #{line}" }
+    end
+  end
+
+  desc "Manually generate screenshots for all active portfolios"
+  task generate_screenshots: :environment do
+    puts "=" * 60
+    puts "GENERATING SCREENSHOTS"
+    puts "=" * 60
+    puts ""
+
+    portfolios = Portfolio.active
+    total = portfolios.count
+
+    puts "Found #{total} active portfolios"
+    puts ""
+
+    if total.zero?
+      puts "No active portfolios found."
+      return
+    end
+
+    print "Queue all screenshot jobs? (y/n): "
+    response = STDIN.gets.chomp.downcase
+
+    if response == 'y'
+      puts ""
+      puts "Queueing screenshot jobs..."
+      portfolios.find_each.with_index do |portfolio, index|
+        GeneratePortfolioScreenshotJob.perform_later(portfolio.id)
+        print "."
+        puts " #{index + 1}/#{total}" if (index + 1) % 50 == 0
+      end
+      puts "" if total % 50 != 0
+      puts ""
+      puts "✓ Queued #{total} screenshot jobs"
+      puts ""
+      puts "Run 'rails jobs:status' to check their progress."
+    else
+      puts "Cancelled."
+    end
+  end
+
+  desc "Generate screenshot for a specific portfolio by ID"
+  task :generate_screenshot, [:portfolio_id] => :environment do |t, args|
+    unless args[:portfolio_id]
+      puts "Usage: rails jobs:generate_screenshot[PORTFOLIO_ID]"
+      puts "Example: rails jobs:generate_screenshot[123]"
+      exit 1
+    end
+
+    portfolio_id = args[:portfolio_id].to_i
+    portfolio = Portfolio.find_by(id: portfolio_id)
+
+    if portfolio.nil?
+      puts "✗ Portfolio with ID #{portfolio_id} not found"
+      exit 1
+    end
+
+    puts "=" * 60
+    puts "GENERATING SCREENSHOT"
+    puts "=" * 60
+    puts ""
+    puts "Portfolio: #{portfolio.name}"
+    puts "URL: #{portfolio.url}"
+    puts "Status: #{portfolio.status}"
+    puts ""
+
+    if portfolio.active?
+      puts "Generating screenshot now..."
+      begin
+        GeneratePortfolioScreenshotJob.perform_now(portfolio.id)
+        puts "✓ Screenshot generated successfully!"
+      rescue => e
+        puts "✗ Error generating screenshot:"
+        puts "  #{e.message}"
+      end
+    else
+      puts "✗ Portfolio is not active (status: #{portfolio.status})"
+    end
+  end
+
+  desc "Run both: update feed and generate all screenshots"
+  task run_all: :environment do
+    puts "\n" + "=" * 60
+    puts "RUNNING ALL JOBS"
+    puts "=" * 60
+
+    puts "\nStep 1: Updating Feed"
+    puts "-" * 60
+    Rake::Task["jobs:update_feed"].execute
+
+    puts "\n" + "=" * 60
+    puts "COMPLETE"
+    puts "=" * 60
+    puts ""
+    puts "Feed has been updated and screenshots queued."
+    puts "Run 'rails jobs:diagnostic' to see full status."
+    puts ""
   end
 end
 
