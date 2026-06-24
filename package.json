@@ -3,7 +3,7 @@
   "private": true,
   "devDependencies": {
     "chokidar": "^5.0.0",
-    "esbuild": "^0.27.2"
+    "esbuild": "^0.28.1"
   },
   "scripts": {
     "build": "node esbuild.config.mjs",
