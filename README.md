@@ -85,6 +85,10 @@ development:
     schedule: every week on Monday at 2am
 ```
 
+## 🚢 Deployment
+
+Deployed via [Hatchbox](https://hatchbox.io). See the [Deploy Commands](docs/DEPLOY_COMMANDS.md) and [Deployment Jobs Checklist](docs/DEPLOYMENT_JOBS_CHECKLIST.md) for post-deploy steps.
+
 ## 💾 Data Source
 
 Fetches from: https://raw.githubusercontent.com/emmabostian/developer-portfolios/master/feed.json
