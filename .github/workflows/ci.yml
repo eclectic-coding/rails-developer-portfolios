@@ -42,6 +42,13 @@ jobs:
       - name: Run tests
         run: bin/rspec
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/coverage.json
+          fail_ci_if_error: false
+
   scan_ruby:
     runs-on: ubuntu-latest
 
