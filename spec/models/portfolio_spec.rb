@@ -51,6 +51,14 @@ RSpec.describe Portfolio, type: :model do
         expect(portfolio.errors[:path]).to include('must be an http or https URL')
       end
     end
+
+    it 'rejects URLs with embedded whitespace or no host' do
+      ["https://example.com\njavascript:alert(1)", "https://", "https:// evil.com"].each do |bad_url|
+        portfolio = build(:portfolio, path: bad_url)
+        expect(portfolio).not_to be_valid, "expected #{bad_url.inspect} to be invalid"
+        expect(portfolio.errors[:path]).to include('must be an http or https URL')
+      end
+    end
   end
 
   describe '.active' do

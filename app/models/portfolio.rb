@@ -20,7 +20,7 @@ class Portfolio < ApplicationRecord
 
   validates :name, presence: true
   validates :path, presence: true, uniqueness: true,
-                   format: { with: /\Ahttps?:\/\//i, message: "must be an http or https URL" }
+                   format: { with: /\Ahttps?:\/\/[^\s]+\z/i, message: "must be an http or https URL" }
 
   scope :active, -> { where(active: true).order(:name) }
 
