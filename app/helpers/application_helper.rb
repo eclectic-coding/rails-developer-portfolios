@@ -2,7 +2,9 @@ module ApplicationHelper
   include Pagy::Method
 
   def portfolio_starting_letters
-    Rails.cache.fetch('portfolio_starting_letters') do
+    cache   = Rails.cache
+    version = cache.read('portfolios_version') || 1
+    cache.fetch("portfolio_starting_letters/v#{version}") do
       Portfolio.starting_letters
     end
   end

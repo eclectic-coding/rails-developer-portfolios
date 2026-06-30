@@ -10,6 +10,10 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
+# Indexes
+#
+#  index_portfolios_on_path  (path) UNIQUE
+#
 
 require 'rails_helper'
 
@@ -33,6 +37,27 @@ RSpec.describe Portfolio, type: :model do
 
       expect(duplicate).not_to be_valid
       expect(duplicate.errors[:path]).to include('has already been taken')
+    end
+
+    it 'accepts http and https URLs' do
+      expect(build(:portfolio, path: 'https://example.com')).to be_valid
+      expect(build(:portfolio, path: 'http://example.com')).to be_valid
+    end
+
+    it 'rejects javascript: and other non-http schemes' do
+      %w[javascript:alert(1) data:text/html,<h1>x</h1> vbscript:msgbox(1) //evil.com].each do |bad_url|
+        portfolio = build(:portfolio, path: bad_url)
+        expect(portfolio).not_to be_valid, "expected #{bad_url.inspect} to be invalid"
+        expect(portfolio.errors[:path]).to include('must be an http or https URL')
+      end
+    end
+
+    it 'rejects URLs with embedded whitespace or no host' do
+      ["https://example.com\njavascript:alert(1)", "https://", "https:// evil.com"].each do |bad_url|
+        portfolio = build(:portfolio, path: bad_url)
+        expect(portfolio).not_to be_valid, "expected #{bad_url.inspect} to be invalid"
+        expect(portfolio.errors[:path]).to include('must be an http or https URL')
+      end
     end
   end
 

@@ -10,12 +10,17 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
+# Indexes
+#
+#  index_portfolios_on_path  (path) UNIQUE
+#
 
 class Portfolio < ApplicationRecord
   has_one_attached :site_screenshot
 
   validates :name, presence: true
-  validates :path, presence: true, uniqueness: true
+  validates :path, presence: true, uniqueness: true,
+                   format: { with: /\Ahttps?:\/\/[^\s]+\z/i, message: "must be an http or https URL" }
 
   scope :active, -> { where(active: true).order(:name) }
 

@@ -34,62 +34,47 @@ class DeveloperPortfoliosFetcher
 
   private
 
-  # The source JSON has the shape:
-  # [
-  #   { "name": "Developer Name", "url": "https://portfolio-url.com", "tagline": "Optional tagline" },
-  #   { "name": "Another Developer", "url": "https://another-portfolio.com" }
-  # ]
+  # Feed shape: [{ "name": "...", "url": "https://...", "tagline": "..." }, ...]
   # We persist `url` into the `path` column.
   def sync_portfolios(data)
-    current_paths = data.map { |p| p['url'] }.compact
+    current_paths = data.map { |entry| entry['url'] }.compact
+    deactivate_removed(current_paths)
 
-    # Mark any portfolios that are no longer present in the feed as inactive
-    # and remove their associated screenshots to avoid keeping stale images.
+    # Preload after deactivation so inactive_by_name captures portfolios just
+    # deactivated above, enabling correct rename detection within the same sync.
+    by_path          = Portfolio.all.index_by(&:path)
+    inactive_by_name = Portfolio.where(active: false)
+                                .order(updated_at: :desc)
+                                .each_with_object({}) { |record, memo| memo[record.name] ||= record }
+
+    data.each do |entry|
+      next if entry['url'].blank? || entry['name'].blank?
+
+      upsert_entry(entry, by_path, inactive_by_name)
+    end
+  end
+
+  def deactivate_removed(current_paths)
     Portfolio.where.not(path: current_paths).find_each do |portfolio|
-      portfolio.update_columns(active: false) # skip validations for bulk update
+      portfolio.update_columns(active: false)
       portfolio.site_screenshot.purge if portfolio.site_screenshot.attached?
     end
+  end
 
-    data.each do |portfolio_data|
-      url = portfolio_data['url']
-      name = portfolio_data['name']
-      tagline = portfolio_data['tagline']
+  def upsert_entry(entry, by_path, inactive_by_name)
+    url     = entry['url']
+    name    = entry['name']
+    tagline = entry['tagline']
 
-      next if url.blank? || name.blank?
-
-      portfolio = Portfolio.find_by(path: url)
-
-      if portfolio
-        # Same URL: update name/tagline/active
-        portfolio.update!(
-          name: name,
-          tagline: tagline,
-          active: true
-        )
-        Rails.logger.debug "Updated portfolio: #{portfolio.name}"
-      else
-        # Possible path change: try to find an inactive record with same name
-        old_portfolio = Portfolio.where(active: false, name: name)
-                                 .order(updated_at: :desc)
-                                 .first
-
-        if old_portfolio
-          old_portfolio.update!(
-            path: url,
-            tagline: tagline,
-            active: true
-          )
-          Rails.logger.info "Updated URL for portfolio: #{old_portfolio.name}"
-        else
-          Portfolio.create!(
-            name: name,
-            path: url,
-            tagline: tagline,
-            active: true
-          )
-          Rails.logger.info "Created new portfolio: #{name}"
-        end
-      end
+    if (portfolio = by_path[url])
+      portfolio.update!(name: name, tagline: tagline, active: true)
+      Rails.logger.debug "Updated portfolio: #{portfolio.name}"
+    elsif (old_portfolio = inactive_by_name[name])
+      old_portfolio.update!(path: url, tagline: tagline, active: true)
+      Rails.logger.info "Updated URL for portfolio: #{old_portfolio.name}"
+    else
+      Portfolio.create!(name: name, path: url, tagline: tagline, active: true)
+      Rails.logger.info "Created new portfolio: #{name}"
     end
   end
 end
