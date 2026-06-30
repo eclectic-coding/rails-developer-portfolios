@@ -1,5 +1,9 @@
 # Developer Portfolios
 
+[![CI](https://github.com/eclectic-coding/rails-developer-portfolios/actions/workflows/ci.yml/badge.svg)](https://github.com/eclectic-coding/rails-developer-portfolios/actions/workflows/ci.yml)
+[![Ruby](https://img.shields.io/badge/ruby-4.0.5-CC342D?logo=ruby&logoColor=white)](https://www.ruby-lang.org/)
+[![Rails](https://img.shields.io/badge/rails-8.1-CC0000?logo=rubyonrails&logoColor=white)](https://rubyonrails.org/)
+
 A Rails application that fetches and displays developer portfolio data from GitHub.
 
 ## 🌟 Features
@@ -44,10 +48,10 @@ fetch('/portfolios.json')
 
 ## 📚 Documentation
 
-- [Deployment Guide](DEPLOYMENT_GUIDE.md) - **Post-deployment setup and operations**
-- [Quick Start Guide](docs/QUICK_START.md) - Get started quickly
-- [API Documentation](docs/DEVELOPER_PORTFOLIOS_API.md) - Full API reference
-- [Setup Summary](docs/SETUP_SUMMARY.md) - Implementation details
+- [Deployment Jobs Checklist](docs/DEPLOYMENT_JOBS_CHECKLIST.md)
+- [Deploy Commands](docs/DEPLOY_COMMANDS.md)
+- [Jobs Reference](docs/JOBS_REFERENCE.md)
+- [Jobs Cheatsheet](docs/JOBS_CHEATSHEET.md)
 
 ## 🧪 Testing
 
