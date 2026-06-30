@@ -50,14 +50,21 @@ class DeveloperPortfoliosFetcher
       portfolio.site_screenshot.purge if portfolio.site_screenshot.attached?
     end
 
+    # Preload after deactivation so inactive_by_name includes portfolios just
+    # deactivated above, enabling correct rename detection within the same sync.
+    by_path        = Portfolio.all.index_by(&:path)
+    inactive_by_name = Portfolio.where(active: false)
+                                .order(updated_at: :desc)
+                                .each_with_object({}) { |p, h| h[p.name] ||= p }
+
     data.each do |portfolio_data|
-      url = portfolio_data['url']
-      name = portfolio_data['name']
+      url     = portfolio_data['url']
+      name    = portfolio_data['name']
       tagline = portfolio_data['tagline']
 
       next if url.blank? || name.blank?
 
-      portfolio = Portfolio.find_by(path: url)
+      portfolio = by_path[url]
 
       if portfolio
         # Same URL: update name/tagline/active
@@ -69,9 +76,7 @@ class DeveloperPortfoliosFetcher
         Rails.logger.debug "Updated portfolio: #{portfolio.name}"
       else
         # Possible path change: try to find an inactive record with same name
-        old_portfolio = Portfolio.where(active: false, name: name)
-                                 .order(updated_at: :desc)
-                                 .first
+        old_portfolio = inactive_by_name[name]
 
         if old_portfolio
           old_portfolio.update!(
