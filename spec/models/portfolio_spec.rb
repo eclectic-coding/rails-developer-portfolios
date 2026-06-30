@@ -10,6 +10,10 @@
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
+# Indexes
+#
+#  index_portfolios_on_path  (path) UNIQUE
+#
 
 require 'rails_helper'
 
