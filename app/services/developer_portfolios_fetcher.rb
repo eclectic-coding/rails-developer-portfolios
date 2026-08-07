@@ -4,8 +4,21 @@ require 'json'
 class DeveloperPortfoliosFetcher
   FEED_URL = 'https://raw.githubusercontent.com/emmabostian/developer-portfolios/master/feed.json'
 
+  SyncResult = Struct.new(:success, :error, :created, :updated, :deactivated, :skipped, :total, keyword_init: true) do
+    def success?
+      success
+    end
+  end
+
   def self.fetch_and_sync
     new.fetch_and_sync
+  end
+
+  def initialize
+    @created     = []
+    @updated     = []
+    @deactivated = []
+    @skipped     = []
   end
 
   def fetch_and_sync
@@ -22,17 +35,27 @@ class DeveloperPortfoliosFetcher
       Rails.cache.increment('portfolios_version') || Rails.cache.write('portfolios_version', 1)
 
       Rails.logger.info "Successfully synced #{data.size} developer portfolios"
-      true
+      success_result(total: data.size)
     else
       Rails.logger.error "Failed to fetch developer portfolios: #{response.code} #{response.message}"
-      false
+      failure_result("#{response.code} #{response.message}")
     end
   rescue StandardError => e
     Rails.logger.error "Error fetching developer portfolios: #{e.message}"
-    false
+    failure_result(e.message)
   end
 
   private
+
+  def success_result(total:)
+    SyncResult.new(success: true, error: nil, created: @created, updated: @updated,
+                   deactivated: @deactivated, skipped: @skipped, total: total)
+  end
+
+  def failure_result(error)
+    SyncResult.new(success: false, error: error, created: @created, updated: @updated,
+                   deactivated: @deactivated, skipped: @skipped, total: nil)
+  end
 
   # Feed shape: [{ "name": "...", "url": "https://...", "tagline": "..." }, ...]
   # We persist `url` into the `path` column.
@@ -58,6 +81,7 @@ class DeveloperPortfoliosFetcher
     Portfolio.where.not(path: current_paths).find_each do |portfolio|
       portfolio.update_columns(active: false)
       portfolio.site_screenshot.purge if portfolio.site_screenshot.attached?
+      @deactivated << portfolio.name
     end
   end
 
@@ -68,17 +92,21 @@ class DeveloperPortfoliosFetcher
 
     if (portfolio = by_path[url])
       portfolio.update!(name: name, tagline: tagline, active: true)
+      @updated << name
       Rails.logger.debug "Updated portfolio: #{portfolio.name}"
     elsif (old_portfolio = inactive_by_name[name])
       old_portfolio.update!(path: url, tagline: tagline, active: true)
+      @updated << name
       Rails.logger.info "Updated URL for portfolio: #{old_portfolio.name}"
     else
       Portfolio.create!(name: name, path: url, tagline: tagline, active: true)
+      @created << name
       Rails.logger.info "Created new portfolio: #{name}"
     end
   rescue ActiveRecord::RecordInvalid => e
     # A single malformed entry (bad URL, duplicate path, etc.) must not abort
     # the sync for the rest of the feed, so we skip it and keep going.
+    @skipped << { name: name, url: url, error: e.message }
     Rails.logger.error "Skipping invalid feed entry #{name.inspect} (#{url.inspect}): #{e.message}"
   end
 end

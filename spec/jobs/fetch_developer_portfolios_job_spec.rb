@@ -1,9 +1,29 @@
 require 'rails_helper'
 
 RSpec.describe FetchDeveloperPortfoliosJob, type: :job do
+  let(:sync_result) do
+    DeveloperPortfoliosFetcher::SyncResult.new(
+      success: true, error: nil, created: [], updated: [], deactivated: [], skipped: [], total: 0
+    )
+  end
+  let(:mail_message) { instance_double(ActionMailer::MessageDelivery, deliver_now: true) }
+
+  before do
+    allow(AdminMailer).to receive(:feed_sync_report).and_return(mail_message)
+  end
+
   describe '#perform' do
     it 'delegates to DeveloperPortfoliosFetcher.fetch_and_sync' do
-      expect(DeveloperPortfoliosFetcher).to receive(:fetch_and_sync)
+      expect(DeveloperPortfoliosFetcher).to receive(:fetch_and_sync).and_return(sync_result)
+
+      described_class.perform_now
+    end
+
+    it 'emails the site admin a report of the sync result' do
+      allow(DeveloperPortfoliosFetcher).to receive(:fetch_and_sync).and_return(sync_result)
+
+      expect(AdminMailer).to receive(:feed_sync_report).with(sync_result).and_return(mail_message)
+      expect(mail_message).to receive(:deliver_now)
 
       described_class.perform_now
     end
@@ -21,7 +41,7 @@ RSpec.describe FetchDeveloperPortfoliosJob, type: :job do
       expect(GeneratePortfolioScreenshotJob).to receive(:perform_later).with(1)
       expect(GeneratePortfolioScreenshotJob).to receive(:perform_later).with(2)
 
-      allow(DeveloperPortfoliosFetcher).to receive(:fetch_and_sync)
+      allow(DeveloperPortfoliosFetcher).to receive(:fetch_and_sync).and_return(sync_result)
 
       described_class.perform_now
     end
@@ -32,7 +52,7 @@ RSpec.describe FetchDeveloperPortfoliosJob, type: :job do
 
       allow(Portfolio).to receive(:active).and_return(active_relation)
       allow(active_relation).to receive(:find_each).and_return(portfolios.to_enum)
-      allow(DeveloperPortfoliosFetcher).to receive(:fetch_and_sync)
+      allow(DeveloperPortfoliosFetcher).to receive(:fetch_and_sync).and_return(sync_result)
 
       # First batch (indices 1–10): immediate
       (1..10).each { |i| expect(GeneratePortfolioScreenshotJob).to receive(:perform_later).with(i) }
