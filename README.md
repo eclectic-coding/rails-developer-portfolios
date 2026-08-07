@@ -47,6 +47,41 @@ fetch('/portfolios.json')
   });
 ```
 
+## 🔄 Manually Updating the Feed (Hatchbox)
+
+The feed normally syncs automatically every Monday at 2 AM (see Configuration below). To force an update sooner — e.g. after deploying a fix, or to pull in newly added sites without waiting for the next scheduled run — SSH into Hatchbox and run one of:
+
+```bash
+# Sync the DB from the feed only (fast, no screenshots).
+# New/updated/removed portfolios show up immediately after this.
+bin/rails portfolios:fetch
+
+# Sync the DB AND queue screenshot generation for every active portfolio
+# (not just the new ones — this re-queues screenshots for the whole list,
+# which can take a while: portfolios are batched 10 at a time, 30s apart).
+bin/rails jobs:update_feed
+```
+
+To backfill a screenshot for one specific portfolio instead of the whole list:
+
+```bash
+bin/rails jobs:generate_screenshot[PORTFOLIO_ID]
+```
+
+Health checks, if something looks off:
+
+```bash
+bin/rails jobs:diagnostic          # full report: workers, queue, portfolios
+bin/rails jobs:workers             # is a Solid Queue worker process actually running?
+bin/rails jobs:status              # pending/failed job counts
+bin/rails jobs:failed              # failed job details
+bin/rails jobs:missing_screenshots # active portfolios without a screenshot
+```
+
+See [Jobs Cheatsheet](docs/JOBS_CHEATSHEET.md) for the full command reference.
+
+> **Note:** A malformed or duplicate URL in the upstream feed no longer aborts the whole sync — invalid entries are now skipped and logged individually instead. See Configuration below for how sync results get emailed to the admin.
+
 ## 📚 Documentation
 
 - [Deployment Jobs Checklist](docs/DEPLOYMENT_JOBS_CHECKLIST.md)
@@ -82,8 +117,10 @@ The recurring job is configured in `config/recurring.yml`:
 development:
   fetch_developer_portfolios:
     class: FetchDeveloperPortfoliosJob
-    schedule: every week on Monday at 2am
+    schedule: every Monday at 2am
 ```
+
+Sync results are emailed to the admin after every run (scheduled or manual via `jobs:update_feed`). Configure the recipient with `bin/rails credentials:edit` (add `admin_email: you@example.com`), and set SMTP settings in `config/environments/production.rb` (commented out by default) for delivery to actually work in production.
 
 ## 🚢 Deployment
 
