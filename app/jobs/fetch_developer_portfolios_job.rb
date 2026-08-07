@@ -5,7 +5,8 @@ class FetchDeveloperPortfoliosJob < ApplicationJob
   DELAY_SECONDS = 30
 
   def perform
-    DeveloperPortfoliosFetcher.fetch_and_sync
+    result = DeveloperPortfoliosFetcher.fetch_and_sync
+    AdminMailer.feed_sync_report(result).deliver_now
 
     # Generate screenshots in batches to avoid overwhelming resources
     Portfolio.active.find_each.with_index do |portfolio, index|

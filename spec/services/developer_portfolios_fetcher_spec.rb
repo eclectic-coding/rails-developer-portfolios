@@ -131,27 +131,85 @@ RSpec.describe DeveloperPortfoliosFetcher do
       expect(existing.reload.active).to be true
     end
 
-    it 'returns false and logs an error when the response is not successful' do
+    it 'skips invalid entries but still syncs the rest of the feed' do
+      feed = [
+        { 'name' => 'Before', 'url' => 'https://before.com', 'tagline' => 'Comes first' },
+        { 'name' => 'Bad Entry', 'url' => 'https:missing-slashes.com', 'tagline' => 'Malformed URL' },
+        { 'name' => 'After', 'url' => 'https://after.com', 'tagline' => 'Comes after the bad entry' }
+      ]
+      stub_feed(feed)
+
+      expect(Rails.logger).to receive(:error).with(/Skipping invalid feed entry "Bad Entry"/)
+
+      result = nil
+      expect {
+        result = described_class.fetch_and_sync
+      }.to change(Portfolio, :count).by(2)
+
+      expect(result).to be_success
+      expect(result.created).to contain_exactly('Before', 'After')
+      expect(result.skipped).to contain_exactly(
+        a_hash_including(name: 'Bad Entry', url: 'https:missing-slashes.com')
+      )
+
+      expect(Portfolio.find_by(path: 'https://before.com')).to be_present
+      expect(Portfolio.find_by(path: 'https://after.com')).to be_present
+      expect(Portfolio.find_by(name: 'Bad Entry')).to be_nil
+    end
+
+    it 'skips a later entry that duplicates a path created earlier in the same sync' do
+      # by_path is snapshotted before the loop starts, so a same-run duplicate
+      # isn't caught by the by_path[url] lookup and instead hits create!,
+      # which raises on the path uniqueness validation.
+      feed = [
+        { 'name' => 'First Claim', 'url' => 'https://shared.com', 'tagline' => 'Created first' },
+        { 'name' => 'Second Claim', 'url' => 'https://shared.com', 'tagline' => 'Duplicate path' },
+        { 'name' => 'After', 'url' => 'https://after.com', 'tagline' => 'Comes after the bad entry' }
+      ]
+      stub_feed(feed)
+
+      expect(Rails.logger).to receive(:error).with(/Skipping invalid feed entry "Second Claim"/)
+
+      result = nil
+      expect {
+        result = described_class.fetch_and_sync
+      }.to change(Portfolio, :count).by(2)
+
+      expect(result).to be_success
+      expect(result.skipped).to contain_exactly(
+        a_hash_including(name: 'Second Claim', url: 'https://shared.com')
+      )
+      expect(Portfolio.find_by(path: 'https://shared.com').name).to eq('First Claim')
+      expect(Portfolio.find_by(path: 'https://after.com')).to be_present
+    end
+
+    it 'returns a failed result and logs an error when the response is not successful' do
       stub_request(:get, api_url)
         .to_return(status: 500, body: 'Internal Server Error', headers: {})
 
       expect(Rails.logger).to receive(:error).with(/Failed to fetch developer portfolios: 500/)
 
+      result = nil
       expect {
         result = described_class.fetch_and_sync
-        expect(result).to be false
       }.not_to change(Portfolio, :count)
+
+      expect(result).not_to be_success
+      expect(result.error).to match(/500/)
     end
 
-    it 'returns false and logs an error when an exception is raised' do
+    it 'returns a failed result and logs an error when an exception is raised' do
       allow(Net::HTTP).to receive(:get_response).and_raise(StandardError.new('boom'))
 
       expect(Rails.logger).to receive(:error).with(/Error fetching developer portfolios: boom/)
 
+      result = nil
       expect {
         result = described_class.fetch_and_sync
-        expect(result).to be false
       }.not_to change(Portfolio, :count)
+
+      expect(result).not_to be_success
+      expect(result.error).to eq('boom')
     end
   end
 end

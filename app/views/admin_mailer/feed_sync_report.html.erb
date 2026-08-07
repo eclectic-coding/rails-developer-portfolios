@@ -1,0 +1,40 @@
+<h1>Developer Portfolios feed sync <%= @result.success? ? "succeeded" : "FAILED" %></h1>
+
+<% if @result.success? %>
+  <ul>
+    <li>Entries in feed: <%= @result.total %></li>
+    <li>Created: <%= @result.created.size %></li>
+    <li>Updated: <%= @result.updated.size %></li>
+    <li>Deactivated: <%= @result.deactivated.size %></li>
+    <li>Skipped invalid: <%= @result.skipped.size %></li>
+  </ul>
+<% else %>
+  <p><strong>Error:</strong> <%= @result.error %></p>
+<% end %>
+
+<% if @result.created.any? %>
+  <h2>New portfolios</h2>
+  <ul>
+    <% @result.created.each do |name| %>
+      <li><%= name %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<% if @result.skipped.any? %>
+  <h2>Skipped invalid entries (need attention in the upstream feed)</h2>
+  <ul>
+    <% @result.skipped.each do |entry| %>
+      <li><%= entry[:name] %> (<%= entry[:url] %>): <%= entry[:error] %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<% if @result.deactivated.any? %>
+  <h2>Deactivated (no longer in the feed)</h2>
+  <ul>
+    <% @result.deactivated.each do |name| %>
+      <li><%= name %></li>
+    <% end %>
+  </ul>
+<% end %>
