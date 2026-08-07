@@ -3,7 +3,9 @@ namespace :portfolios do
   task fetch: :environment do
     puts "Fetching developer portfolios and syncing to DB..."
 
-    if DeveloperPortfoliosFetcher.fetch_and_sync
+    result = DeveloperPortfoliosFetcher.fetch_and_sync
+
+    if result.success?
       # Clear and repopulate the cached starting letters since portfolios may have changed
       Rails.cache.delete('portfolio_starting_letters')
       puts "✓ Cache cleared"
@@ -20,6 +22,16 @@ namespace :portfolios do
       puts "✓ Successfully synced portfolios"
       puts "  Total records:  #{count}"
       puts "  Active records: #{active_count}"
+      puts "  Created:        #{result.created.size}"
+      puts "  Updated:        #{result.updated.size}"
+      puts "  Deactivated:    #{result.deactivated.size}"
+
+      if result.skipped.any?
+        puts "  ⚠ Skipped #{result.skipped.size} invalid entries:"
+        result.skipped.each do |entry|
+          puts "    - #{entry[:name]} (#{entry[:url]}): #{entry[:error]}"
+        end
+      end
 
       if active_count.positive?
         sample = Portfolio.active.order(:name).first
@@ -29,7 +41,8 @@ namespace :portfolios do
         puts "  Tagline: #{sample.tagline.presence || '(none)'}"
       end
     else
-      puts "✗ Sync failed. Check logs for details."
+      puts "✗ Sync failed: #{result.error}"
+      puts "Check logs for details."
     end
   rescue StandardError => e
     puts "✗ Error: #{e.message}"
