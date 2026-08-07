@@ -37,6 +37,9 @@ gem "bootsnap", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 2.0"
+# Required by Rails 8.1.3.1+ Active Storage at boot time, even when unused, to block libvips's
+# untrusted loaders (CVE-2026-66066); without it eager loading raises a LoadError.
+gem "ruby-vips", "~> 2.2"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
