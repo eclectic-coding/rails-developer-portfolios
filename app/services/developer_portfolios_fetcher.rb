@@ -76,5 +76,9 @@ class DeveloperPortfoliosFetcher
       Portfolio.create!(name: name, path: url, tagline: tagline, active: true)
       Rails.logger.info "Created new portfolio: #{name}"
     end
+  rescue ActiveRecord::RecordInvalid => e
+    # A single malformed entry (bad URL, duplicate path, etc.) must not abort
+    # the sync for the rest of the feed, so we skip it and keep going.
+    Rails.logger.error "Skipping invalid feed entry #{name.inspect} (#{url.inspect}): #{e.message}"
   end
 end
