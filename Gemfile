@@ -5,7 +5,7 @@ eval_gemfile 'config/gems/rspec_gemfile.rb'
 
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 8.1.2"
+gem "rails", "~> 8.1.3"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use pg as the database for Active Record
@@ -37,6 +37,9 @@ gem "bootsnap", require: false
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 2.0"
+# Required by Rails 8.1.3.1+ Active Storage at boot time, even when unused, to block libvips's
+# untrusted loaders (CVE-2026-66066); without it eager loading raises a LoadError.
+gem "ruby-vips", "~> 2.2"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
