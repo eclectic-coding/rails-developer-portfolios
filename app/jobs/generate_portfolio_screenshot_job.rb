@@ -10,7 +10,8 @@ class GeneratePortfolioScreenshotJob < ApplicationJob
     Portfolio.where(id: portfolio_id).update_all(
       screenshot_status: Portfolio.screenshot_statuses[:failed],
       screenshot_error: error.message.to_s.truncate(500),
-      screenshot_attempted_at: Time.current
+      screenshot_attempted_at: Time.current,
+      screenshot_source: nil
     )
     Rails.logger.error "GeneratePortfolioScreenshotJob exhausted retries for Portfolio##{portfolio_id}: #{error.message}"
   end

@@ -38,9 +38,23 @@ RSpec.describe GeneratePortfolioScreenshotJob, type: :job do
 
       expect(portfolio.reload).to have_attributes(
         screenshot_status: 'failed',
-        screenshot_error: 'boom'
+        screenshot_error: 'boom',
+        screenshot_source: nil
       )
       expect(portfolio.screenshot_attempted_at).to be_present
+    end
+
+    it 'clears a stale screenshot_source when a previously-successful portfolio later fails' do
+      portfolio.update!(screenshot_status: :success, screenshot_source: 'og_image')
+
+      allow(PortfolioScreenshotGenerator).to receive(:generate_for)
+        .and_raise(PortfolioScreenshotGenerator::CaptureError, 'boom')
+
+      perform_enqueued_jobs(only: described_class) do
+        described_class.perform_later(portfolio.id)
+      end
+
+      expect(portfolio.reload).to have_attributes(screenshot_status: 'failed', screenshot_source: nil)
     end
   end
 end
