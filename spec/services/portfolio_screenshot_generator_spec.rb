@@ -25,9 +25,10 @@ RSpec.describe PortfolioScreenshotGenerator, type: :service do
 
       frozen_time = Time.now
       allow(Time).to receive(:now).and_return(frozen_time)
+      allow(SecureRandom).to receive(:hex).with(4).and_return('deadbeef')
 
       output_dir = PortfolioScreenshotGenerator::OUTPUT_DIR
-      tmpfile = output_dir.join("portfolio_#{portfolio.id}_#{frozen_time.to_i}.png")
+      tmpfile = output_dir.join("portfolio_#{portfolio.id}_#{frozen_time.to_i}_deadbeef.png")
       FileUtils.mkdir_p(output_dir)
       File.write(tmpfile, 'fake image data')
 
@@ -40,6 +41,30 @@ RSpec.describe PortfolioScreenshotGenerator, type: :service do
       expect(portfolio.reload).to have_attributes(screenshot_status: 'success', screenshot_source: 'playwright')
     ensure
       FileUtils.rm_f(tmpfile) if tmpfile
+    end
+
+    it 'uses a unique tmpfile per attempt even within the same second, avoiding collisions between concurrent captures' do
+      allow(PortfolioOgImageFetcher).to receive(:fetch).and_return(nil)
+
+      frozen_time = Time.now
+      allow(Time).to receive(:now).and_return(frozen_time)
+
+      captured_paths = []
+      allow_any_instance_of(described_class).to receive(:system) do |instance, *cmd|
+        path = cmd.last
+        captured_paths << path
+        File.write(path, 'fake image data')
+        true
+      end
+
+      # Same portfolio, same frozen second - simulates two overlapping
+      # attempts (e.g. a retry racing the original, or two queued jobs).
+      described_class.generate_for(portfolio)
+      described_class.generate_for(portfolio)
+
+      expect(captured_paths.uniq.size).to eq(2)
+    ensure
+      captured_paths&.each { |path| FileUtils.rm_f(path) }
     end
 
     it 'falls back to Playwright when attaching the og:image raises' do
@@ -55,9 +80,10 @@ RSpec.describe PortfolioScreenshotGenerator, type: :service do
 
       frozen_time = Time.now
       allow(Time).to receive(:now).and_return(frozen_time)
+      allow(SecureRandom).to receive(:hex).with(4).and_return('deadbeef')
 
       output_dir = PortfolioScreenshotGenerator::OUTPUT_DIR
-      tmpfile = output_dir.join("portfolio_#{portfolio.id}_#{frozen_time.to_i}.png")
+      tmpfile = output_dir.join("portfolio_#{portfolio.id}_#{frozen_time.to_i}_deadbeef.png")
       FileUtils.mkdir_p(output_dir)
       File.write(tmpfile, 'fake image data')
 

@@ -1,4 +1,5 @@
 require "stringio"
+require "securerandom"
 
 class PortfolioScreenshotGenerator
   class CaptureError < StandardError; end
@@ -63,7 +64,7 @@ class PortfolioScreenshotGenerator
 
   def attach_playwright_screenshot
     FileUtils.mkdir_p(OUTPUT_DIR)
-    tmpfile = OUTPUT_DIR.join("portfolio_#{@portfolio.id}_#{Time.now.to_i}.png")
+    tmpfile = OUTPUT_DIR.join("portfolio_#{@portfolio.id}_#{Time.now.to_i}_#{SecureRandom.hex(4)}.png")
 
     # Call the Node/Playwright script via system. It should return exit status 0 on success.
     cmd = [
