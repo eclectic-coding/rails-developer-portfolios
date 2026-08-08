@@ -5,6 +5,9 @@ gem "inline_svg"
 gem "name_of_person"
 # gem "strong_migrations"
 
+# Rate limiting and throttling for Rack apps [https://github.com/rack/rack-attack]
+gem "rack-attack"
+
 group :development, :test do
   gem "erb_lint"
   gem "faker"
