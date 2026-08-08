@@ -1,8 +1,13 @@
 (() => {
   var __defProp = Object.defineProperty;
   var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __esm = (fn2, res) => function __init() {
-    return fn2 && (res = (0, fn2[__getOwnPropNames(fn2)[0]])(fn2 = 0)), res;
+  var __esm = (fn2, res, err) => function __init() {
+    if (err) throw err[0];
+    try {
+      return fn2 && (res = (0, fn2[__getOwnPropNames(fn2)[0]])(fn2 = 0)), res;
+    } catch (e) {
+      throw err = [e], e;
+    }
   };
   var __export = (target, all) => {
     for (var name in all)
@@ -428,9 +433,9 @@
   var Subscriptions;
   var init_subscriptions = __esm({
     "../../node_modules/@rails/actioncable/src/subscriptions.js"() {
-      init_logger();
       init_subscription();
       init_subscription_guarantor();
+      init_logger();
       Subscriptions = class {
         constructor(consumer2) {
           this.consumer = consumer2;
@@ -583,15 +588,15 @@
   }
   var init_src = __esm({
     "../../node_modules/@rails/actioncable/src/index.js"() {
-      init_adapters();
       init_connection();
       init_connection_monitor();
       init_consumer();
       init_internal();
-      init_logger();
       init_subscription();
-      init_subscription_guarantor();
       init_subscriptions();
+      init_subscription_guarantor();
+      init_adapters();
+      init_logger();
     }
   });
 
