@@ -452,6 +452,7 @@ DEPENDENCIES
   jsbundling-rails
   letter_opener_web
   name_of_person
+  nokogiri
   pagy
   pg (~> 1.1)
   propshaft

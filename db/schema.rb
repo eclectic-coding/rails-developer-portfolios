@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_30_123030) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_08_124831) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -47,9 +47,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_30_123030) do
     t.datetime "created_at", null: false
     t.string "name"
     t.string "path"
+    t.datetime "screenshot_attempted_at"
+    t.text "screenshot_error"
+    t.string "screenshot_source"
+    t.integer "screenshot_status", default: 0, null: false
     t.text "tagline"
     t.datetime "updated_at", null: false
     t.index ["path"], name: "index_portfolios_on_path", unique: true
+    t.index ["screenshot_status"], name: "index_portfolios_on_screenshot_status"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

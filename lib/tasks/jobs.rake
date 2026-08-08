@@ -130,6 +130,31 @@ namespace :jobs do
     end
   end
 
+  desc "Show portfolios whose screenshot generation failed (og:image and Playwright both failed)"
+  task screenshot_failures: :environment do
+    puts "=" * 60
+    puts "PORTFOLIO SCREENSHOT FAILURES"
+    puts "=" * 60
+    puts ""
+
+    failures = Portfolio.active.where(screenshot_status: :failed).order(:screenshot_attempted_at)
+
+    puts "Failed: #{failures.count}"
+    puts ""
+
+    if failures.any?
+      failures.each do |portfolio|
+        puts "  #{portfolio.name} (ID: #{portfolio.id})"
+        puts "    URL:          #{portfolio.path}"
+        puts "    Last attempt: #{portfolio.screenshot_attempted_at}"
+        puts "    Error:        #{portfolio.screenshot_error}"
+        puts ""
+      end
+    else
+      puts "✓ No screenshot failures!"
+    end
+  end
+
   desc "Full diagnostic report"
   task diagnostic: :environment do
     puts "\n" + "=" * 60

@@ -2,21 +2,28 @@
 #
 # Table name: portfolios
 #
-#  id         :integer          not null, primary key
-#  name       :string
-#  path       :string
-#  tagline    :text
-#  active     :boolean          default(TRUE)
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id                      :integer          not null, primary key
+#  name                    :string
+#  path                    :string
+#  tagline                 :text
+#  active                  :boolean          default(TRUE)
+#  screenshot_status       :integer          default("pending"), not null
+#  screenshot_error        :text
+#  screenshot_attempted_at :datetime
+#  screenshot_source       :string
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
 #
 # Indexes
 #
-#  index_portfolios_on_path  (path) UNIQUE
+#  index_portfolios_on_path              (path) UNIQUE
+#  index_portfolios_on_screenshot_status (screenshot_status)
 #
 
 class Portfolio < ApplicationRecord
   has_one_attached :site_screenshot
+
+  enum :screenshot_status, { pending: 0, success: 1, failed: 2 }, default: :pending
 
   validates :name, presence: true
   validates :path, presence: true, uniqueness: true,

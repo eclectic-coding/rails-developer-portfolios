@@ -2,7 +2,7 @@
   <% if portfolio.path.present? %>
     <%= link_to portfolio.path, target: '_blank', rel: 'noopener noreferrer', class: 'text-decoration-none stretched-link' do %>
       <% if portfolio.site_screenshot.attached? %>
-        <%= image_tag portfolio.site_screenshot, class: "card-img-top", alt: "Screenshot of #{portfolio.name}" %>
+        <%= image_tag portfolio.site_screenshot.variant(resize_to_fill: [1280, 450]), class: "card-img-top", alt: "Screenshot of #{portfolio.name}" %>
       <% else %>
         <%= image_tag "default_portfolio_screenshot.svg", class: "card-img-top", alt: "Default portfolio screenshot" %>
       <% end %>
@@ -16,7 +16,7 @@
     <% end %>
   <% else %>
     <% if portfolio.site_screenshot.attached? %>
-      <%= image_tag portfolio.site_screenshot, class: "card-img-top", alt: "Screenshot of #{portfolio.name}" %>
+      <%= image_tag portfolio.site_screenshot.variant(resize_to_fill: [1280, 450]), class: "card-img-top", alt: "Screenshot of #{portfolio.name}" %>
     <% else %>
       <%= image_tag "default_portfolio_screenshot.svg", class: "card-img-top", alt: "Default portfolio screenshot" %>
     <% end %>

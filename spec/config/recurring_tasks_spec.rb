@@ -92,6 +92,29 @@ RSpec.describe 'Recurring Tasks Configuration' do
           expect(FetchDeveloperPortfoliosJob).to be < ApplicationJob
         end
       end
+
+      describe 'retry_failed_portfolio_screenshots' do
+        let(:task) { production_tasks['retry_failed_portfolio_screenshots'] }
+
+        it 'is defined' do
+          expect(task).not_to be_nil
+        end
+
+        it 'has a valid schedule' do
+          parsed = Fugit.parse(task['schedule'])
+          expect(parsed).not_to be_nil,
+            "Schedule '#{task['schedule']}' is not valid Fugit syntax"
+        end
+
+        it 'references the correct job class' do
+          expect(task['class']).to eq('RetryFailedPortfolioScreenshotsJob')
+        end
+
+        it 'job class exists and is valid' do
+          expect { RetryFailedPortfolioScreenshotsJob }.not_to raise_error
+          expect(RetryFailedPortfolioScreenshotsJob).to be < ApplicationJob
+        end
+      end
     end
 
     describe 'development environment' do

@@ -2,17 +2,22 @@
 #
 # Table name: portfolios
 #
-#  id         :integer          not null, primary key
-#  name       :string
-#  path       :string
-#  tagline    :text
-#  active     :boolean          default(TRUE)
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id                      :integer          not null, primary key
+#  name                    :string
+#  path                    :string
+#  tagline                 :text
+#  active                  :boolean          default(TRUE)
+#  screenshot_status       :integer          default("pending"), not null
+#  screenshot_error        :text
+#  screenshot_attempted_at :datetime
+#  screenshot_source       :string
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
 #
 # Indexes
 #
-#  index_portfolios_on_path  (path) UNIQUE
+#  index_portfolios_on_path              (path) UNIQUE
+#  index_portfolios_on_screenshot_status (screenshot_status)
 #
 
 require 'rails_helper'
@@ -99,6 +104,16 @@ RSpec.describe Portfolio, type: :model do
     it 'responds to site_screenshot attachment' do
       portfolio = build(:portfolio)
       expect(portfolio).to respond_to(:site_screenshot)
+    end
+  end
+
+  describe 'screenshot_status enum' do
+    it 'defaults to pending' do
+      expect(build(:portfolio).screenshot_status).to eq('pending')
+    end
+
+    it 'supports pending, success, and failed' do
+      expect(described_class.screenshot_statuses.keys).to match_array(%w[pending success failed])
     end
   end
 end
