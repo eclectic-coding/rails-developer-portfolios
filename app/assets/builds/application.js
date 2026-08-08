@@ -8693,6 +8693,7 @@
 
   // controllers/portfolio_search_controller.js
   var portfolio_search_controller_default = class extends Controller {
+    static targets = ["input", "clear"];
     static values = {
       delay: { type: Number, default: 250 }
     };
@@ -8700,17 +8701,33 @@
       console.log("PortfolioSearchController connected");
       this.submit = this.submit.bind(this);
       this._timer = null;
+      this.toggleClear();
     }
     submit() {
+      this.toggleClear();
       if (this._timer) clearTimeout(this._timer);
       this._timer = setTimeout(() => {
-        const form = this.element;
-        if (form && typeof form.requestSubmit === "function") {
-          form.requestSubmit();
-        } else if (form) {
-          form.submit();
-        }
+        this.requestSubmit();
       }, this.delayValue);
+    }
+    clear() {
+      if (this._timer) clearTimeout(this._timer);
+      this.inputTarget.value = "";
+      this.toggleClear();
+      this.inputTarget.focus();
+      this.requestSubmit();
+    }
+    toggleClear() {
+      if (!this.hasClearTarget || !this.hasInputTarget) return;
+      this.clearTarget.classList.toggle("d-none", this.inputTarget.value.length === 0);
+    }
+    requestSubmit() {
+      const form = this.element;
+      if (form && typeof form.requestSubmit === "function") {
+        form.requestSubmit();
+      } else if (form) {
+        form.submit();
+      }
     }
   };
 
