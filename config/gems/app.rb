@@ -5,6 +5,12 @@ gem "inline_svg"
 gem "name_of_person"
 # gem "strong_migrations"
 
+# Rate limiting and throttling for Rack apps [https://github.com/rack/rack-attack]
+gem "rack-attack"
+
+# HTML parsing, used to extract og:image meta tags from portfolio sites
+gem "nokogiri"
+
 group :development, :test do
   gem "erb_lint"
   gem "faker"

@@ -18,8 +18,16 @@ production:
     class: FetchDeveloperPortfoliosJob
     schedule: every Monday at 2am
 
+  retry_failed_portfolio_screenshots:
+    class: RetryFailedPortfolioScreenshotsJob
+    schedule: every day at 3am
+
 development:
   fetch_developer_portfolios:
     class: FetchDeveloperPortfoliosJob
     schedule: every Monday at 2am
+
+  retry_failed_portfolio_screenshots:
+    class: RetryFailedPortfolioScreenshotsJob
+    schedule: every day at 3am
 

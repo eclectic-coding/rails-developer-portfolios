@@ -6,9 +6,9 @@ if ENV["RAILS_ENV"] ||= "test"
       SimpleCov::Formatter::HTMLFormatter,
       SimpleCov::Formatter::JSONFormatter
     ])
-    add_filter "/lib/"
-    add_filter "/app/channels/"
-    add_filter "/app/mailers/"
+    skip "/lib/"
+    skip "/app/channels/"
+    skip "/app/mailers/"
   end
 end
 # This file is copied to spec/ when you run 'rails generate rspec:install'

@@ -1,8 +1,13 @@
 (() => {
   var __defProp = Object.defineProperty;
   var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __esm = (fn2, res) => function __init() {
-    return fn2 && (res = (0, fn2[__getOwnPropNames(fn2)[0]])(fn2 = 0)), res;
+  var __esm = (fn2, res, err) => function __init() {
+    if (err) throw err[0];
+    try {
+      return fn2 && (res = (0, fn2[__getOwnPropNames(fn2)[0]])(fn2 = 0)), res;
+    } catch (e) {
+      throw err = [e], e;
+    }
   };
   var __export = (target, all) => {
     for (var name in all)
@@ -428,9 +433,9 @@
   var Subscriptions;
   var init_subscriptions = __esm({
     "../../node_modules/@rails/actioncable/src/subscriptions.js"() {
-      init_logger();
       init_subscription();
       init_subscription_guarantor();
+      init_logger();
       Subscriptions = class {
         constructor(consumer2) {
           this.consumer = consumer2;
@@ -583,15 +588,15 @@
   }
   var init_src = __esm({
     "../../node_modules/@rails/actioncable/src/index.js"() {
-      init_adapters();
       init_connection();
       init_connection_monitor();
       init_consumer();
       init_internal();
-      init_logger();
       init_subscription();
-      init_subscription_guarantor();
       init_subscriptions();
+      init_subscription_guarantor();
+      init_adapters();
+      init_logger();
     }
   });
 
@@ -8688,6 +8693,7 @@
 
   // controllers/portfolio_search_controller.js
   var portfolio_search_controller_default = class extends Controller {
+    static targets = ["input", "clear"];
     static values = {
       delay: { type: Number, default: 250 }
     };
@@ -8695,17 +8701,33 @@
       console.log("PortfolioSearchController connected");
       this.submit = this.submit.bind(this);
       this._timer = null;
+      this.toggleClear();
     }
     submit() {
+      this.toggleClear();
       if (this._timer) clearTimeout(this._timer);
       this._timer = setTimeout(() => {
-        const form = this.element;
-        if (form && typeof form.requestSubmit === "function") {
-          form.requestSubmit();
-        } else if (form) {
-          form.submit();
-        }
+        this.requestSubmit();
       }, this.delayValue);
+    }
+    clear() {
+      if (this._timer) clearTimeout(this._timer);
+      this.inputTarget.value = "";
+      this.toggleClear();
+      this.inputTarget.focus();
+      this.requestSubmit();
+    }
+    toggleClear() {
+      if (!this.hasClearTarget || !this.hasInputTarget) return;
+      this.clearTarget.classList.toggle("d-none", this.inputTarget.value.length === 0);
+    }
+    requestSubmit() {
+      const form = this.element;
+      if (form && typeof form.requestSubmit === "function") {
+        form.requestSubmit();
+      } else if (form) {
+        form.submit();
+      }
     }
   };
 

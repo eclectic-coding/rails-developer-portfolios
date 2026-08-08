@@ -18,4 +18,7 @@ bundle exec bundle-audit check --update
 echo "[ bin/ci ] Linting: Running rubocop"
 bin/rubocop
 
+echo "[ bin/ci ] Linting: Running erb_lint"
+bundle exec erb_lint app/views
+
 echo "[ bin/ci ] Done"

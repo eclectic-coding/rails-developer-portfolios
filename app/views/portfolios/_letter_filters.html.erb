@@ -3,14 +3,24 @@
     <div class="col-12 col-sm-8 col-md-6 col-lg-4 mb-3">
       <%= form_with url: portfolios_path,
                     method: :get,
-                    data: { controller: "portfolio-search", turbo: "true" },
+                    data: { controller: "portfolio-search", turbo_frame: "portfolios_cards", turbo: "true" },
                     local: true do |f| %>
-        <div class="input-group">
+        <div class="search-field-wrapper">
           <%= f.search_field :q,
                              value: @query,
                              class: "form-control",
                              placeholder: "Search portfolios by name or tagline",
-                             data: { action: "input->portfolio-search#submit" } %>
+                             data: {
+                               portfolio_search_target: "input",
+                               action: "input->portfolio-search#submit"
+                             } %>
+          <button type="button"
+                  class="search-clear-btn <%= "d-none" unless @query.present? %>"
+                  aria-label="Clear search"
+                  data-portfolio-search-target="clear"
+                  data-action="click->portfolio-search#clear">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
           <%= f.hidden_field :letter, value: @letter %>
         </div>
       <% end %>

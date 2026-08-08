@@ -175,6 +175,49 @@ address {
   display: block;
 }
 
+// Portfolio search field
+.search-field-wrapper {
+  position: relative;
+
+  .form-control {
+    padding-right: 2.25rem; // leave room for our custom clear button
+
+    // Hide the native WebKit/Blink clear ("x") button on type="search"
+    // inputs so it doesn't double up with our custom one.
+    &::-webkit-search-cancel-button {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+  }
+}
+
+.search-clear-btn {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
+  color: rgba(0, 0, 0, 0.35);
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: rgba(0, 0, 0, 0.6);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: 50%;
+  }
+}
+
 // Letter filter buttons styled like cards
 .letter-filter-button {
   display: inline-flex;

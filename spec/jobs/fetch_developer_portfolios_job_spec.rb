@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe FetchDeveloperPortfoliosJob, type: :job do
+  include ActiveJob::TestHelper
+
   let(:sync_result) do
     DeveloperPortfoliosFetcher::SyncResult.new(
       success: true, error: nil, created: [], updated: [], deactivated: [], skipped: [], total: 0
@@ -28,42 +30,20 @@ RSpec.describe FetchDeveloperPortfoliosJob, type: :job do
       described_class.perform_now
     end
 
-    it 'enqueues a screenshot job for each active portfolio' do
-      portfolio1 = instance_double('Portfolio', id: 1)
-      portfolio2 = instance_double('Portfolio', id: 2)
-
-      active_relation = double('ActiveRelation')
-      enumerator = [portfolio1, portfolio2].to_enum
-
-      expect(Portfolio).to receive(:active).and_return(active_relation)
-      expect(active_relation).to receive(:find_each).and_return(enumerator)
-
-      expect(GeneratePortfolioScreenshotJob).to receive(:perform_later).with(1)
-      expect(GeneratePortfolioScreenshotJob).to receive(:perform_later).with(2)
+    it 'enqueues a screenshot job for every active portfolio immediately, with no delay' do
+      ActiveJob::Base.queue_adapter = :test
+      active_portfolios = create_list(:portfolio, 3, active: true)
+      create(:portfolio, active: false)
 
       allow(DeveloperPortfoliosFetcher).to receive(:fetch_and_sync).and_return(sync_result)
 
       described_class.perform_now
-    end
 
-    it 'enqueues delayed screenshot jobs for portfolios in batches after the first' do
-      portfolios = (1..11).map { |i| instance_double('Portfolio', id: i) }
-      active_relation = double('ActiveRelation')
+      enqueued_ids = enqueued_jobs
+        .select { |job| job[:job] == GeneratePortfolioScreenshotJob }
+        .map { |job| job[:args].first }
 
-      allow(Portfolio).to receive(:active).and_return(active_relation)
-      allow(active_relation).to receive(:find_each).and_return(portfolios.to_enum)
-      allow(DeveloperPortfoliosFetcher).to receive(:fetch_and_sync).and_return(sync_result)
-
-      # First batch (indices 1–10): immediate
-      (1..10).each { |i| expect(GeneratePortfolioScreenshotJob).to receive(:perform_later).with(i) }
-
-      # Second batch starts at batch_index 1: delayed by 1 * DELAY_SECONDS
-      delay = described_class::DELAY_SECONDS.seconds
-      delayed_proxy = double('delayed_proxy')
-      expect(GeneratePortfolioScreenshotJob).to receive(:set).with(wait: delay).and_return(delayed_proxy)
-      expect(delayed_proxy).to receive(:perform_later).with(11)
-
-      described_class.perform_now
+      expect(enqueued_ids).to match_array(active_portfolios.map(&:id))
     end
   end
 
