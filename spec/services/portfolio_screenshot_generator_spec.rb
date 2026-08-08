@@ -42,6 +42,35 @@ RSpec.describe PortfolioScreenshotGenerator, type: :service do
       FileUtils.rm_f(tmpfile) if tmpfile
     end
 
+    it 'falls back to Playwright when attaching the og:image raises' do
+      allow(PortfolioOgImageFetcher).to receive(:fetch).and_return(og_result)
+
+      attach_calls = 0
+      allow_any_instance_of(ActiveStorage::Attached::One).to receive(:attach).and_wrap_original do |original, *args|
+        attach_calls += 1
+        raise StandardError, 'disk full' if attach_calls == 1
+
+        original.call(*args)
+      end
+
+      frozen_time = Time.now
+      allow(Time).to receive(:now).and_return(frozen_time)
+
+      output_dir = PortfolioScreenshotGenerator::OUTPUT_DIR
+      tmpfile = output_dir.join("portfolio_#{portfolio.id}_#{frozen_time.to_i}.png")
+      FileUtils.mkdir_p(output_dir)
+      File.write(tmpfile, 'fake image data')
+
+      allow_any_instance_of(described_class).to receive(:system).and_return(true)
+
+      result = described_class.generate_for(portfolio)
+
+      expect(result).to eq(portfolio)
+      expect(portfolio.reload).to have_attributes(screenshot_status: 'success', screenshot_source: 'playwright')
+    ensure
+      FileUtils.rm_f(tmpfile) if tmpfile
+    end
+
     it 'does nothing when path is blank' do
       blank_portfolio = build(:portfolio, path: nil)
 

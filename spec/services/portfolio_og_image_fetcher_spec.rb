@@ -81,5 +81,44 @@ RSpec.describe PortfolioOgImageFetcher do
 
       expect(described_class.fetch(url)).to be_nil
     end
+
+    it 'returns nil when the og:image content is not a resolvable URI' do
+      stub_page(<<~HTML)
+        <html><head><meta property="og:image" content="http://a b.com"></head></html>
+      HTML
+
+      expect(described_class.fetch(url)).to be_nil
+    end
+
+    it 'follows a redirect when fetching the page' do
+      redirected_url = 'https://example.com/home'
+
+      stub_request(:get, url).to_return(status: 301, headers: { 'Location' => redirected_url })
+      stub_request(:get, redirected_url).to_return(
+        status: 200,
+        body: '<html><head><meta property="og:image" content="https://example.com/preview.png"></head></html>',
+        headers: { 'Content-Type' => 'text/html' }
+      )
+      stub_image('https://example.com/preview.png')
+
+      result = described_class.fetch(url)
+
+      expect(result.image_data).to eq('fake image bytes')
+    end
+
+    it 'follows a redirect when downloading the image' do
+      redirected_image_url = 'https://cdn.example.com/preview.png'
+
+      stub_page(<<~HTML)
+        <html><head><meta property="og:image" content="https://example.com/preview.png"></head></html>
+      HTML
+      stub_request(:get, 'https://example.com/preview.png')
+        .to_return(status: 302, headers: { 'Location' => redirected_image_url })
+      stub_image(redirected_image_url)
+
+      result = described_class.fetch(url)
+
+      expect(result.image_data).to eq('fake image bytes')
+    end
   end
 end
