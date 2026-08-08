@@ -1,5 +1,7 @@
 require "net/http"
 require "nokogiri"
+require "resolv"
+require "ipaddr"
 
 # Looks up a site's og:image (falling back to twitter:image) meta tag and
 # downloads it, so we can skip a full Playwright render when a curated
@@ -58,6 +60,7 @@ class PortfolioOgImageFetcher
 
     uri = URI.parse(url)
     return nil unless uri.is_a?(URI::HTTP)
+    return nil unless public_host?(uri.host)
 
     response = http_get(uri)
 
@@ -77,6 +80,7 @@ class PortfolioOgImageFetcher
 
     uri = URI.parse(url)
     return nil unless uri.is_a?(URI::HTTP)
+    return nil unless public_host?(uri.host)
 
     response = http_get(uri)
 
@@ -98,6 +102,27 @@ class PortfolioOgImageFetcher
 
       download_image(URI.join(url, location).to_s, limit: limit - 1)
     end
+  end
+
+  # Guards against SSRF: resolves the hostname and rejects it unless every
+  # resolved address is public. Called on the original URL and on every
+  # redirect hop (fetch_body/download_image re-check on each recursive
+  # call), since a redirect can point anywhere regardless of where the
+  # request started.
+  def public_host?(host)
+    addresses = Resolv.getaddresses(host)
+    return false if addresses.empty?
+
+    addresses.all? { |address| public_ip?(address) }
+  rescue Resolv::ResolvError, Resolv::ResolvTimeout
+    false
+  end
+
+  def public_ip?(address)
+    ip = IPAddr.new(address)
+    !(ip.loopback? || ip.private? || ip.link_local?)
+  rescue IPAddr::Error
+    false
   end
 
   def http_get(uri)

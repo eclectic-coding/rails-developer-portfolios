@@ -4,6 +4,12 @@ RSpec.describe PortfolioOgImageFetcher do
   describe '.fetch' do
     let(:url) { 'https://example.com' }
 
+    before do
+      # Default every hostname to a public IP so specs don't depend on
+      # real DNS; SSRF-specific examples below override this per host.
+      allow(Resolv).to receive(:getaddresses).and_return(['93.184.216.34'])
+    end
+
     def stub_page(html, status: 200)
       stub_request(:get, url).to_return(status: status, body: html, headers: { 'Content-Type' => 'text/html' })
     end
@@ -119,6 +125,59 @@ RSpec.describe PortfolioOgImageFetcher do
       result = described_class.fetch(url)
 
       expect(result.image_data).to eq('fake image bytes')
+    end
+
+    describe 'SSRF protection' do
+      it 'refuses to fetch a page whose host resolves to a loopback address' do
+        allow(Resolv).to receive(:getaddresses).with('example.com').and_return(['127.0.0.1'])
+
+        expect(described_class.fetch(url)).to be_nil
+      end
+
+      it 'refuses to fetch a page whose host resolves to a private address' do
+        allow(Resolv).to receive(:getaddresses).with('example.com').and_return(['10.0.0.5'])
+
+        expect(described_class.fetch(url)).to be_nil
+      end
+
+      it 'refuses to fetch a page whose host resolves to a link-local/cloud-metadata address' do
+        allow(Resolv).to receive(:getaddresses).with('example.com').and_return(['169.254.169.254'])
+
+        expect(described_class.fetch(url)).to be_nil
+      end
+
+      it 'refuses when only some resolved addresses are private' do
+        allow(Resolv).to receive(:getaddresses).with('example.com').and_return(['93.184.216.34', '127.0.0.1'])
+
+        expect(described_class.fetch(url)).to be_nil
+      end
+
+      it 'refuses when the host does not resolve at all' do
+        allow(Resolv).to receive(:getaddresses).with('example.com').and_return([])
+
+        expect(described_class.fetch(url)).to be_nil
+      end
+
+      it 'refuses when resolution raises' do
+        allow(Resolv).to receive(:getaddresses).with('example.com').and_raise(Resolv::ResolvError)
+
+        expect(described_class.fetch(url)).to be_nil
+      end
+
+      it 'refuses when a resolved address is not a parseable IP' do
+        allow(Resolv).to receive(:getaddresses).with('example.com').and_return(['not-an-ip'])
+
+        expect(described_class.fetch(url)).to be_nil
+      end
+
+      it 'refuses to follow a redirect that points at an internal host, even if the original host is public' do
+        redirected_url = 'https://internal.example.com/admin'
+
+        stub_request(:get, url).to_return(status: 301, headers: { 'Location' => redirected_url })
+        allow(Resolv).to receive(:getaddresses).with('internal.example.com').and_return(['169.254.169.254'])
+
+        expect(described_class.fetch(url)).to be_nil
+      end
     end
   end
 end
