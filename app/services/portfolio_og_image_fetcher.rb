@@ -85,6 +85,9 @@ class PortfolioOgImageFetcher
       content_type = response["content-type"].to_s
       return nil unless content_type.start_with?("image/")
 
+      content_length = response["content-length"].to_i
+      return nil if content_length.positive? && content_length > MAX_IMAGE_BYTES
+
       body = response.body
       return nil if body.blank? || body.bytesize > MAX_IMAGE_BYTES
 
