@@ -44,7 +44,7 @@ namespace :jobs do
     if failed > 0
       puts "Failed Jobs:"
       SolidQueue::FailedExecution.order(created_at: :desc).limit(10).each do |failure|
-        puts "  Job: #{failure.job.class_name} | Error: #{failure.error.message.truncate(80)}"
+        puts "  Job: #{failure.job.class_name} | Error: #{failure.message.truncate(80)}"
         puts "  Time: #{failure.created_at}"
         puts "  ---"
       end
@@ -67,9 +67,9 @@ namespace :jobs do
         puts "#{index + 1}. #{failure.job.class_name}"
         puts "   Job ID: #{failure.job_id}"
         puts "   Failed at: #{failure.created_at}"
-        puts "   Error: #{failure.error.message}"
+        puts "   Error: #{failure.message}"
         puts "   Backtrace:"
-        failure.error.backtrace&.first(3)&.each do |line|
+        failure.backtrace&.first(3)&.each do |line|
           puts "     #{line}"
         end
         puts ""
@@ -90,7 +90,7 @@ namespace :jobs do
     if processes.any?
       puts "✓ Active workers found: #{processes.count}"
       processes.each do |process|
-        puts "  PID: #{process.hostname}:#{process.process_id}"
+        puts "  PID: #{process.hostname}:#{process.pid}"
         puts "  Last heartbeat: #{process.last_heartbeat_at}"
         puts "  Kind: #{process.kind}"
         puts ""

@@ -25,6 +25,19 @@ RSpec.describe GeneratePortfolioScreenshotJob, type: :job do
     described_class.perform_now(inactive.id)
   end
 
+  describe 'concurrency key' do
+    # Solid Queue always calls the limits_concurrency `key:` proc via
+    # instance_exec(*arguments, &key), passing the job's own perform
+    # arguments. A zero-arity key proc raises ArgumentError as soon as any
+    # screenshot job is enqueued, which silently broke every caller (see
+    # FetchDeveloperPortfoliosJob, RetryFailedPortfolioScreenshotsJob).
+    it 'computes without raising when instance_exec is called with the perform arguments' do
+      job = described_class.new(portfolio.id)
+
+      expect { job.concurrency_key }.not_to raise_error
+    end
+  end
+
   describe 'when generation raises CaptureError' do
     before { ActiveJob::Base.queue_adapter = :test }
 
