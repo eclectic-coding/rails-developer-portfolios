@@ -3,7 +3,7 @@ class GeneratePortfolioScreenshotJob < ApplicationJob
 
   # Never more than 3 screenshot jobs (og:image fetches or Playwright
   # captures) running at once, regardless of JOB_CONCURRENCY/thread count.
-  limits_concurrency to: 3, key: -> { "portfolio_screenshot_generation" }, duration: 5.minutes
+  limits_concurrency to: 3, key: ->(*) { "portfolio_screenshot_generation" }, duration: 5.minutes
 
   retry_on PortfolioScreenshotGenerator::CaptureError, wait: :polynomially_longer, attempts: 3 do |job, error|
     portfolio_id = job.arguments.first
