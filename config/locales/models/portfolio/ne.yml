@@ -1,0 +1,26 @@
+ne:
+  activerecord:
+    models:
+      portfolio:
+        one: "पोर्टफोलियो"
+        other: "पोर्टफोलियोहरू"
+    attributes:
+      portfolio:
+        name: "नाम"
+        path: "URL"
+        tagline: "ट्यागलाइन"
+        active: "सक्रिय"
+        screenshot_status: "स्क्रिनसट स्थिति"
+        screenshot_error: "स्क्रिनसट त्रुटि"
+        screenshot_attempted_at: "स्क्रिनसट प्रयासको समय"
+        screenshot_source: "स्क्रिनसट स्रोत"
+    errors:
+      models:
+        portfolio:
+          attributes:
+            name:
+              blank: "खाली हुन सक्दैन"
+            path:
+              blank: "खाली हुन सक्दैन"
+              taken: "पहिले नै प्रयोग भइसकेको छ"
+              invalid: "http वा https URL हुनुपर्छ"

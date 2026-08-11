@@ -1,0 +1,26 @@
+en:
+  activerecord:
+    models:
+      portfolio:
+        one: "Portfolio"
+        other: "Portfolios"
+    attributes:
+      portfolio:
+        name: "Name"
+        path: "URL"
+        tagline: "Tagline"
+        active: "Active"
+        screenshot_status: "Screenshot status"
+        screenshot_error: "Screenshot error"
+        screenshot_attempted_at: "Screenshot attempted at"
+        screenshot_source: "Screenshot source"
+    errors:
+      models:
+        portfolio:
+          attributes:
+            name:
+              blank: "can't be blank"
+            path:
+              blank: "can't be blank"
+              taken: "has already been taken"
+              invalid: "must be an http or https URL"

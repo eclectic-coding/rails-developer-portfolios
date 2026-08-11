@@ -1,0 +1,18 @@
+hi:
+  portfolios:
+    index:
+      title: "डेवलपर पोर्टफोलियो"
+      description_html: "<span class=\"fw-bold\">%{count}</span> डेवलपर पोर्टफोलियो का चयनित संग्रह"
+      source_html: 'डेटा स्रोत: <a href="%{url}">%{repo}</a>'
+      loading: "अधिक पोर्टफोलियो लोड हो रहे हैं..."
+      end_of_list: "बस इतने ही पोर्टफोलियो हैं!"
+    letter_filters:
+      search_placeholder: "नाम या टैगलाइन से पोर्टफोलियो खोजें"
+      clear_search: "खोज साफ़ करें"
+      all: "सभी"
+    card:
+      screenshot_alt: "%{name} का स्क्रीनशॉट"
+      default_screenshot_alt: "डिफ़ॉल्ट पोर्टफोलियो स्क्रीनशॉट"
+    portfolio_cards:
+      empty_title: "अभी तक कोई पोर्टफोलियो डेटा उपलब्ध नहीं है"
+      empty_description_html: "डेटा स्वचालित रूप से प्राप्त किया जाएगा। आप यह भी चला सकते हैं: <code>rails portfolios:fetch</code>"

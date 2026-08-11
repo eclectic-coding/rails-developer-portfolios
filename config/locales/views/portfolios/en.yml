@@ -1,0 +1,18 @@
+en:
+  portfolios:
+    index:
+      title: "Developer Portfolios"
+      description_html: "A curated collection of <span class=\"fw-bold\">%{count}</span> developer portfolios"
+      source_html: 'Data sourced from <a href="%{url}">%{repo}</a>'
+      loading: "Loading more portfolios..."
+      end_of_list: "That's all the portfolios!"
+    letter_filters:
+      search_placeholder: "Search portfolios by name or tagline"
+      clear_search: "Clear search"
+      all: "All"
+    card:
+      screenshot_alt: "Screenshot of %{name}"
+      default_screenshot_alt: "Default portfolio screenshot"
+    portfolio_cards:
+      empty_title: "No portfolios data available yet"
+      empty_description_html: "The data will be fetched automatically. You can also run: <code>rails portfolios:fetch</code>"

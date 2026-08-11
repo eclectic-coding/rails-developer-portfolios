@@ -1,0 +1,18 @@
+ne:
+  portfolios:
+    index:
+      title: "डेभलपर पोर्टफोलियोहरू"
+      description_html: "<span class=\"fw-bold\">%{count}</span> डेभलपर पोर्टफोलियोहरूको छनोट गरिएको संग्रह"
+      source_html: 'डेटा स्रोत: <a href="%{url}">%{repo}</a>'
+      loading: "थप पोर्टफोलियोहरू लोड हुँदैछन्..."
+      end_of_list: "यति नै पोर्टफोलियोहरू छन्!"
+    letter_filters:
+      search_placeholder: "नाम वा ट्यागलाइनद्वारा पोर्टफोलियो खोज्नुहोस्"
+      clear_search: "खोज मेटाउनुहोस्"
+      all: "सबै"
+    card:
+      screenshot_alt: "%{name} को स्क्रिनसट"
+      default_screenshot_alt: "पूर्वनिर्धारित पोर्टफोलियो स्क्रिनसट"
+    portfolio_cards:
+      empty_title: "अहिलेसम्म कुनै पोर्टफोलियो डेटा उपलब्ध छैन"
+      empty_description_html: "डेटा स्वचालित रूपमा प्राप्त हुनेछ। तपाईं यो पनि चलाउन सक्नुहुन्छ: <code>rails portfolios:fetch</code>"
