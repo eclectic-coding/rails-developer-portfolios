@@ -18,5 +18,9 @@ en:
       models:
         portfolio:
           attributes:
+            name:
+              blank: "can't be blank"
             path:
+              blank: "can't be blank"
+              taken: "has already been taken"
               invalid: "must be an http or https URL"
