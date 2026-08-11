@@ -19,12 +19,6 @@
       <div class="container mt-5 mx-auto">
         <%= yield %>
       </div>
-
-      <%= content_tag :div, '', class: "container d-flex" do %>
-        <div class="card w-75 shadow-sm p-3">
-          <%= debug(params) if Rails.env.local? %>
-        </div>
-      <% end if Rails.env.local? %>
     </main>
 
   </body>

@@ -27,5 +27,11 @@ RSpec.describe PortfoliosController, type: :request do
 
       expect(response).to have_http_status(:success)
     end
+
+    it 'returns success when requested as turbo_stream' do
+      get '/portfolios', as: :turbo_stream
+
+      expect(response).to have_http_status(:success)
+    end
   end
 end
