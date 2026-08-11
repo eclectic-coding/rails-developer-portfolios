@@ -1,0 +1,11 @@
+# App-wide defaults not tied to a specific model or view.
+#
+# Locale files are organized by category, one directory per locale within
+# each category, per https://guides.rubyonrails.org/i18n.html:
+#
+#   config/locales/defaults/en.yml   - app-wide defaults
+#   config/locales/models/**/en.yml  - ActiveRecord attribute/error translations
+#   config/locales/views/**/en.yml   - one directory per view namespace
+#
+en:
+  hello: "Hello world"

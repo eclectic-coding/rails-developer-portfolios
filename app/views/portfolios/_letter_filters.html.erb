@@ -10,14 +10,14 @@
           <%= f.search_field :q,
                              value: query,
                              class: "form-control",
-                             placeholder: "Search portfolios by name or tagline",
+                             placeholder: t(".search_placeholder"),
                              data: {
                                portfolio_search_target: "input",
                                action: "input->portfolio-search#submit"
                              } %>
           <button type="button"
                   class="search-clear-btn <%= "d-none" unless query.present? %>"
-                  aria-label="Clear search"
+                  aria-label="<%= t(".clear_search") %>"
                   data-portfolio-search-target="clear"
                   data-action="click->portfolio-search#clear">
             <i class="bi bi-x-circle-fill"></i>
@@ -29,7 +29,7 @@
   </div>
 
   <!-- All button -->
-  <%= link_to "All",
+  <%= link_to t(".all"),
               portfolios_path(q: query),
               data: { turbo: "true" },
               class: "btn btn-sm mx-1 letter-filter-button #{letter.nil? ? 'active' : ''}" %>

@@ -10,8 +10,8 @@
     </div>
   <% else %>
     <div class="alert alert-info text-center">
-      <h4>No portfolios data available yet</h4>
-      <p>The data will be fetched automatically. You can also run: <code>rails portfolios:fetch</code></p>
+      <h4><%= t(".empty_title") %></h4>
+      <p><%= t(".empty_description_html") %></p>
     </div>
   <% end %>
 <% end %>
