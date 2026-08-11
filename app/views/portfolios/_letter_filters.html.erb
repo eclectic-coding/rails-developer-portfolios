@@ -1,3 +1,4 @@
+<%# locals: (query: nil, letter: nil) %>
 <div class="mb-4 text-center">
   <div class="mb-3 d-flex justify-content-center">
     <div class="col-12 col-sm-8 col-md-6 col-lg-4 mb-3">
@@ -7,7 +8,7 @@
                     local: true do |f| %>
         <div class="search-field-wrapper">
           <%= f.search_field :q,
-                             value: @query,
+                             value: query,
                              class: "form-control",
                              placeholder: "Search portfolios by name or tagline",
                              data: {
@@ -15,13 +16,13 @@
                                action: "input->portfolio-search#submit"
                              } %>
           <button type="button"
-                  class="search-clear-btn <%= "d-none" unless @query.present? %>"
+                  class="search-clear-btn <%= "d-none" unless query.present? %>"
                   aria-label="Clear search"
                   data-portfolio-search-target="clear"
                   data-action="click->portfolio-search#clear">
             <i class="bi bi-x-circle-fill"></i>
           </button>
-          <%= f.hidden_field :letter, value: @letter %>
+          <%= f.hidden_field :letter, value: letter %>
         </div>
       <% end %>
     </div>
@@ -29,14 +30,14 @@
 
   <!-- All button -->
   <%= link_to "All",
-              portfolios_path(q: @query),
+              portfolios_path(q: query),
               data: { turbo: "true" },
-              class: "btn btn-sm mx-1 letter-filter-button #{@letter.nil? ? 'active' : ''}" %>
+              class: "btn btn-sm mx-1 letter-filter-button #{letter.nil? ? 'active' : ''}" %>
 
-  <% portfolio_starting_letters.each do |letter| %>
-    <%= link_to letter,
-                portfolios_path(letter: letter, q: @query),
+  <% portfolio_starting_letters.each do |starting_letter| %>
+    <%= link_to starting_letter,
+                portfolios_path(letter: starting_letter, q: query),
                 data: { turbo: "true" },
-                class: "btn btn-sm mx-1 letter-filter-button #{@letter == letter ? 'active' : ''}" %>
+                class: "btn btn-sm mx-1 letter-filter-button #{letter == starting_letter ? 'active' : ''}" %>
   <% end %>
 </div>
