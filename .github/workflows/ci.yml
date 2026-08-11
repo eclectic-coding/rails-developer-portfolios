@@ -50,6 +50,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage/coverage.json
+          flags: unit
           fail_ci_if_error: false
 
   system_test:
@@ -90,6 +91,14 @@ jobs:
 
       - name: Run system tests
         run: bin/rspec --tag type:system
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/coverage.json
+          flags: system
+          fail_ci_if_error: false
 
   scan_ruby:
     runs-on: ubuntu-latest
