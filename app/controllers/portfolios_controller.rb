@@ -7,7 +7,7 @@ class PortfoliosController < ApplicationController
                                 .starting_with(@letter)
                                 .search(@query)
 
-    @pagy, @portfolios = pagy(portfolios_scope, items: 12)
+    @pagy, @portfolios = pagy(portfolios_scope, limit: 12)
 
     respond_to do |format|
       format.html
