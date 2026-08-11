@@ -42,5 +42,10 @@ module DeveloperPortfolios
 
     # Tell well-behaved crawlers not to index any page, as a backstop to robots.txt.
     config.action_dispatch.default_headers["X-Robots-Tag"] = "noindex, nofollow"
+
+    # Locales available to the app; the browser's Accept-Language header is
+    # matched against this list (see ApplicationController#switch_locale).
+    config.i18n.available_locales = [:en, :es]
+    config.i18n.default_locale = :en
   end
 end

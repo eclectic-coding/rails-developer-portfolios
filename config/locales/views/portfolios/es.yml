@@ -1,0 +1,18 @@
+es:
+  portfolios:
+    index:
+      title: "Portafolios de Desarrolladores"
+      description_html: "Una colección seleccionada de <span class=\"fw-bold\">%{count}</span> portafolios de desarrolladores"
+      source_html: 'Datos obtenidos de <a href="%{url}">%{repo}</a>'
+      loading: "Cargando más portafolios..."
+      end_of_list: "¡Eso son todos los portafolios!"
+    letter_filters:
+      search_placeholder: "Buscar portafolios por nombre o eslogan"
+      clear_search: "Borrar búsqueda"
+      all: "Todos"
+    card:
+      screenshot_alt: "Captura de pantalla de %{name}"
+      default_screenshot_alt: "Captura de pantalla predeterminada del portafolio"
+    portfolio_cards:
+      empty_title: "Aún no hay datos de portafolios disponibles"
+      empty_description_html: "Los datos se obtendrán automáticamente. También puedes ejecutar: <code>rails portfolios:fetch</code>"
