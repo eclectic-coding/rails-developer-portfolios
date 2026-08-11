@@ -45,7 +45,7 @@ module DeveloperPortfolios
 
     # Locales available to the app; the browser's Accept-Language header is
     # matched against this list (see ApplicationController#switch_locale).
-    config.i18n.available_locales = [:en, :es]
+    config.i18n.available_locales = [:en, :es, :fr, :hi, :ne]
     config.i18n.default_locale = :en
   end
 end

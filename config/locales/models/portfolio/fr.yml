@@ -1,0 +1,26 @@
+fr:
+  activerecord:
+    models:
+      portfolio:
+        one: "Portfolio"
+        other: "Portfolios"
+    attributes:
+      portfolio:
+        name: "Nom"
+        path: "URL"
+        tagline: "Slogan"
+        active: "Actif"
+        screenshot_status: "État de la capture d'écran"
+        screenshot_error: "Erreur de capture d'écran"
+        screenshot_attempted_at: "Date de la tentative de capture d'écran"
+        screenshot_source: "Source de la capture d'écran"
+    errors:
+      models:
+        portfolio:
+          attributes:
+            name:
+              blank: "ne peut pas être vide"
+            path:
+              blank: "ne peut pas être vide"
+              taken: "est déjà utilisé"
+              invalid: "doit être une URL http ou https"
