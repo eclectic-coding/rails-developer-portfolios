@@ -7,10 +7,10 @@
     <small>Data sourced from <a href="https://github.com/emmabostian/developer-portfolios">emmabostian/developer-portfolios</a></small>
   </div>
 
-  <%= render "portfolios/letter_filters" %>
+  <%= render "portfolios/letter_filters", query: @query, letter: @letter %>
 
   <turbo-frame id="portfolios_cards">
-    <%= render 'portfolios/portfolio_cards', portfolios: @portfolios %>
+    <%= render 'portfolios/portfolio_cards', portfolios: @portfolios, letter: @letter, query: @query %>
 
     <div id="infinite-scroll" data-controller="infinite-scroll">
       <div id="portfolios_stream"></div>
