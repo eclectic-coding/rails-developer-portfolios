@@ -1,5 +1,5 @@
 <%# locals: (portfolios:, letter: nil, query: nil) %>
-<% cache ['portfolios_cards', letter, query, Rails.cache.fetch('portfolios_version') { 1 }] do %>
+<% cache ['portfolios_cards', letter, query, Rails.cache.fetch('portfolios_version') { 1 }, portfolios.cache_key_with_version] do %>
   <% if portfolios.present? %>
     <div class="row g-4">
       <% portfolios.each do |portfolio| %>
