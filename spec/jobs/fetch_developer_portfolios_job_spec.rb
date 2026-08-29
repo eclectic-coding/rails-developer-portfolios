@@ -56,4 +56,21 @@ RSpec.describe FetchDeveloperPortfoliosJob, type: :job do
       }.to have_enqueued_job(described_class).on_queue('default')
     end
   end
+
+  describe 'when fetch_and_sync raises an unhandled error' do
+    before { ActiveJob::Base.queue_adapter = :test }
+
+    it 'retries with backoff and emails the admin once retries are exhausted' do
+      failure_mail = instance_double(ActionMailer::MessageDelivery, deliver_now: true)
+      allow(DeveloperPortfoliosFetcher).to receive(:fetch_and_sync).and_raise(StandardError, 'boom')
+      allow(AdminMailer).to receive(:job_failure_report).and_return(failure_mail)
+
+      perform_enqueued_jobs(only: described_class) do
+        described_class.perform_later
+      end
+
+      expect(AdminMailer).to have_received(:job_failure_report).with('FetchDeveloperPortfoliosJob', instance_of(StandardError), [])
+      expect(failure_mail).to have_received(:deliver_now)
+    end
+  end
 end
