@@ -5,7 +5,7 @@
     <li>Entries in feed: <%= @result.total %></li>
     <li>Created: <%= @result.created.size %></li>
     <li>Updated: <%= @result.updated.size %></li>
-    <li>Deactivated: <%= @result.deactivated.size %></li>
+    <li>Deactivated this week: <%= @result.deactivated.size %></li>
     <li>Skipped invalid: <%= @result.skipped.size %></li>
   </ul>
 <% else %>
@@ -31,7 +31,7 @@
 <% end %>
 
 <% if @result.deactivated.any? %>
-  <h2>Deactivated (no longer in the feed)</h2>
+  <h2>Deactivated this week (no longer in the feed)</h2>
   <ul>
     <% @result.deactivated.each do |name| %>
       <li><%= name %></li>

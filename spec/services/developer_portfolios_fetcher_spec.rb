@@ -64,6 +64,21 @@ RSpec.describe DeveloperPortfoliosFetcher do
       expect(Portfolio.find_by(path: 'https://still-here.com')).to be_present
     end
 
+    it 'does not re-report a portfolio deactivated in a previous sync' do
+      # Already inactive from a prior run, and still missing from the feed.
+      already_removed = create(:portfolio, name: 'Removed Last Week', path: 'https://removed-last-week.com', active: false)
+
+      feed = [
+        { 'name' => 'Still Here', 'url' => 'https://still-here.com', 'tagline' => 'Present' }
+      ]
+      stub_feed(feed)
+
+      result = described_class.fetch_and_sync
+
+      expect(result.deactivated).to be_empty
+      expect(already_removed.reload.active).to be false
+    end
+
     it 'updates name and tagline when URL stays the same' do
       portfolio = create(:portfolio,
                          name: 'Old Name',
