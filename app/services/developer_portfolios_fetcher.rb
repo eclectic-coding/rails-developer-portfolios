@@ -78,7 +78,10 @@ class DeveloperPortfoliosFetcher
   end
 
   def deactivate_removed(current_paths)
-    Portfolio.where.not(path: current_paths).find_each do |portfolio|
+    # Scoped to currently-active portfolios so @deactivated (and the sync
+    # report's "deactivated" section) only reflects portfolios newly removed
+    # from the feed this run, not every portfolio that's ever fallen out of it.
+    Portfolio.where(active: true).where.not(path: current_paths).find_each do |portfolio|
       portfolio.update_columns(active: false)
       portfolio.site_screenshot.purge if portfolio.site_screenshot.attached?
       @deactivated << portfolio.name

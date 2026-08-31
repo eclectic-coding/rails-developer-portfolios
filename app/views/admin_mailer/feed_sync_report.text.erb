@@ -1,11 +1,11 @@
 Developer Portfolios feed sync <%= @result.success? ? "succeeded" : "FAILED" %>
 
 <% if @result.success? -%>
-Entries in feed: <%= @result.total %>
-Created:         <%= @result.created.size %>
-Updated:         <%= @result.updated.size %>
-Deactivated:     <%= @result.deactivated.size %>
-Skipped invalid: <%= @result.skipped.size %>
+Entries in feed:        <%= @result.total %>
+Created:                <%= @result.created.size %>
+Updated:                <%= @result.updated.size %>
+Deactivated this week:  <%= @result.deactivated.size %>
+Skipped invalid:        <%= @result.skipped.size %>
 <% else -%>
 Error: <%= @result.error %>
 <% end -%>
@@ -28,7 +28,7 @@ Skipped invalid entries (need attention in the upstream feed):
 
 <% if @result.deactivated.any? -%>
 
-Deactivated (no longer in the feed):
+Deactivated this week (no longer in the feed):
 <% @result.deactivated.each do |name| -%>
   - <%= name %>
 <% end -%>
