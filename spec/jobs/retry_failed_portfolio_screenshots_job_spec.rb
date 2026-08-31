@@ -21,4 +21,21 @@ RSpec.describe RetryFailedPortfolioScreenshotsJob, type: :job do
       expect(enqueued_ids).to match_array([pending_portfolio.id, failed_portfolio.id])
     end
   end
+
+  describe 'when perform raises an unhandled error' do
+    before { ActiveJob::Base.queue_adapter = :test }
+
+    it 'retries with backoff and emails the admin once retries are exhausted' do
+      failure_mail = instance_double(ActionMailer::MessageDelivery, deliver_now: true)
+      allow(Portfolio).to receive(:active).and_raise(StandardError, 'boom')
+      allow(AdminMailer).to receive(:job_failure_report).and_return(failure_mail)
+
+      perform_enqueued_jobs(only: described_class) do
+        described_class.perform_later
+      end
+
+      expect(AdminMailer).to have_received(:job_failure_report).with('RetryFailedPortfolioScreenshotsJob', instance_of(StandardError), [])
+      expect(failure_mail).to have_received(:deliver_now)
+    end
+  end
 end

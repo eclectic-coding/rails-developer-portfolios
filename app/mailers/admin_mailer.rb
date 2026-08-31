@@ -14,4 +14,21 @@ class AdminMailer < ApplicationMailer
 
     mail(to: recipient, subject: "[Developer Portfolios] Feed sync #{status}")
   end
+
+  # Notifies the site admin when a scheduled job (see config/recurring.yml) exhausts its
+  # retries on an unhandled error, since Solid Queue otherwise just records a
+  # SolidQueue::FailedExecution row with nobody watching for it.
+  def job_failure_report(job_class_name, error, arguments)
+    recipient = Rails.application.credentials.admin_email
+    if recipient.blank?
+      Rails.logger.warn "AdminMailer#job_failure_report: no admin_email configured in credentials, skipping delivery"
+      return
+    end
+
+    @job_class_name = job_class_name
+    @error           = error
+    @arguments       = arguments
+
+    mail(to: recipient, subject: "[Developer Portfolios] #{job_class_name} failed")
+  end
 end

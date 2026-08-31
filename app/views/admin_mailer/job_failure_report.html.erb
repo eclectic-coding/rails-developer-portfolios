@@ -1,0 +1,8 @@
+<h1>Scheduled job failed: <%= @job_class_name %></h1>
+
+<ul>
+  <li><strong>Error class:</strong> <%= @error.class %></li>
+  <li><strong>Error message:</strong> <%= @error.message %></li>
+  <li><strong>Arguments:</strong> <%= @arguments.inspect %></li>
+  <li><strong>Failed at:</strong> <%= Time.current %></li>
+</ul>
